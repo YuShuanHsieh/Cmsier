@@ -23,6 +23,7 @@ footer, header, hgroup, menu, nav, section {
 body {
 	height:100%;
 	width:100%;
+  background-color: #333;
 }
 ol, ul {
 	list-style: none;

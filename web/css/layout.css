@@ -1,0 +1,87 @@
+@charset "utf-8";
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+	padding: 0;
+	border: 0;
+	vertical-align: baseline;
+}
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	height:100%;
+	width:100%;
+}
+ol, ul {
+	list-style: none;
+}
+html{
+	font-family:Microsoft JhengHei,MingLiU,sans-serif;
+	height:100%;
+	width:100%;
+}
+a{
+	text-decoration:none;
+}
+input,select,button,textarea {
+	font-family:Microsoft JhengHei,MingLiU,sans-serif;
+}
+button, a{
+	cursor: pointer;
+}
+/*
+The default setting of CSS layout
+*/
+
+.wrap{
+  min-height: 100%;
+}
+
+.header{
+  background-color: #A8C545;
+  color: #FFFFFF;
+  text-align: center;
+  padding-top: 1.5em;
+  padding-bottom: 1.5em;
+}
+
+.nav{
+  background-color: #776045;
+  height: 3em;
+}
+.nav > .nav-box {
+  height: 3em;
+  display: flex;
+  align-items: center;
+  justify-content:center;
+}
+
+.nav-item {
+  float: left;
+}
+
+.nav-item-link {
+  width: 5em;
+  color: #DFD3B6;
+  display: block;
+  text-align: center;
+}
+
+.main {
+  width: 80%;
+  margin: auto;
+  margin-top: 2em;
+  letter-spacing: 0.1em;
+}
