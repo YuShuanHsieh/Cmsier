@@ -9,6 +9,10 @@
             <name>The second Book</name>
             <targetURL>./web/default/subDefault/defaultPage.html</targetURL>
         </MenuItem>
+        <MenuItem>
+            <name>new page</name>
+            <targetURL>./web/default/subDefault/newpage.html</targetURL>
+        </MenuItem>
     </Menu>
     <subTitle>This is a sub title</subTitle>
     <title>Example Website</title>
