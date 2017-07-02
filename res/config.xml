@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<website>
+<Settings>
     <Menu>
         <MenuItem>
-            <name>MyBook</name>
-            <targetURL>./web/default/defaultPage.html</targetURL>
+            <name>Home</name>
+            <targetURL>./web/index.html</targetURL>
         </MenuItem>
         <MenuItem>
-            <name>The second Book</name>
-            <targetURL>./web/default/subDefault/defaultPage.html</targetURL>
-        </MenuItem>
-        <MenuItem>
-            <name>new page</name>
-            <targetURL>./web/default/subDefault/newpage.html</targetURL>
+            <name>CV</name>
+            <targetURL>./web/test/CV.html</targetURL>
         </MenuItem>
     </Menu>
-    <subTitle>This is a sub title</subTitle>
-    <title>Example Website</title>
-</website>
+    <subTitle>The first version</subTitle>
+    <title>Game Designer</title>
+</Settings>

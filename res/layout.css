@@ -47,18 +47,37 @@ The default setting of CSS layout
 
 .wrap{
   min-height: 100%;
+  background-color: #fdf7e9;
 }
 
 .header{
-  background-color: #A8C545;
+  background-color: #1d5468;
   color: #FFFFFF;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
+  border-top: 1em solid #0f2c35;
+}
+
+.header-container {
+  width: 70%;
+  margin: auto;
+}
+
+.header-title {
+  font-weight: normal;
+  letter-spacing: 0.1em;
+}
+
+.header-subTitle {
+  font-weight: normal;
+  letter-spacing: 0.1em;
+  font-size: 1.2em;
+  margin-top: 0.5em;
 }
 
 .nav{
-  background-color: #776045;
+  background-color: #1d5468;
   height: 3em;
 }
 .nav > .nav-box {
@@ -73,15 +92,59 @@ The default setting of CSS layout
 }
 
 .nav-item-link {
-  width: 5em;
-  color: #DFD3B6;
+  color: #c0d8e1;
   display: block;
   text-align: center;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border: 1px solid #c0d8e1;
+  border-radius: 3px;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+
+.nav-item-link:hover {
+  background-color: #c0d8e1;
+  color: #1d5468;
+
 }
 
 .main {
-  width: 80%;
+  color: #4f4f4f;
+  width: 70%;
   margin: auto;
   margin-top: 2em;
-  letter-spacing: 0.1em;
+}
+
+h1.content-title {
+  border-left: 0.3em solid #B64926;
+  text-indent: 0.2em;
+  color: #333;
+  line-height: 1.2em;
+  margin-top: 0.2em;
+  margin-bottom: 0.5em;
+}
+
+h2.content-title-sub {
+  font-size: normal;
+  font-weight: normal;
+  border-left: 0.3em solid #FFB03B;
+  color: #333;
+  margin-top: 0.2em;
+  margin-bottom: 0.5em;
+  text-indent: 0.2em;
+}
+p{
+  line-height: 150%;
+}
+
+.footer {
+  height: 2.5em;
+  text-align: center;
+  font-size: small;
+  color: #FFFFFF;
+  background: #0f2c35;
+  line-height: 2.5em;
 }

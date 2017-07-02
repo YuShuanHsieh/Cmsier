@@ -1,0 +1,11 @@
+.tree-view .tree-cell{
+  -fx-background: #FFFFFF;
+}
+.tree-view{
+	 -fx-border-style: none;
+  -fx-background-color:transparent;
+}
+
+.button {
+	-fx-background-color: #F2F2F2;
+}
