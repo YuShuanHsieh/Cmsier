@@ -1,7 +1,10 @@
-#Unfinished functions
-1. upload to Web server.
-2. setting the server info and local path info.
-3. image add.
-4. layout change(at least three)
-5. a list page and XML file.
-6. download files from web server.
+# Problems should be solved
+1. Show the statement of upload process.
+2. Unknown word when generate all pages.
+3. Export jar.
+
+# Unfinished functions
+1. Add image-adding function. (Priority)
+2. Design different template.
+5. A list page and related XML file.
+6. Download files from web server.

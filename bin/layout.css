@@ -9,3 +9,10 @@
 .button {
 	-fx-background-color: #F2F2F2;
 }
+
+HBox#topBar{
+ -fx-background-color: #333333;
+}
+#close {
+	-fx-background-color: #333333;
+}
