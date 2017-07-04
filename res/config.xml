@@ -6,10 +6,11 @@
             <targetURL>./index.html</targetURL>
         </MenuItem>
         <MenuItem>
-            <name>Travel</name>
-            <targetURL>./test/first.html</targetURL>
+            <name>Trip</name>
+            <targetURL>./page/first.html</targetURL>
         </MenuItem>
     </Menu>
+    <layout>rose</layout>
     <localPath>/Users/yu-shuan/FinalProject/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
     <subTitle>The first version</subTitle>
