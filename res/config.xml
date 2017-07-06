@@ -13,6 +13,10 @@
             <name>Taiwan</name>
             <targetURL>./page/second.html</targetURL>
         </MenuItem>
+        <MenuItem>
+            <name>Content</name>
+            <targetURL>./page/three.html</targetURL>
+        </MenuItem>
     </Menu>
     <layout>rose</layout>
     <localPath>/Users/yu-shuan/FinalProject/</localPath>

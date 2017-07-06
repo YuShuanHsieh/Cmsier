@@ -1,7 +1,5 @@
 # Problems should be solved
-1. Show the statement of upload process.
-2. Unknown word when generate all pages.
-3. Export jar.
+1. Export jar.
 
 # Unfinished functions
 1. Add image-adding function. (Priority)
