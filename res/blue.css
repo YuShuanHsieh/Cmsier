@@ -119,6 +119,7 @@ The default setting of CSS layout
 }
 
 h1.content-title {
+  font-size: 1.8em;
   border-left: 0.3em solid #B64926;
   text-indent: 0.2em;
   color: #333;
@@ -128,7 +129,7 @@ h1.content-title {
 }
 
 h2.content-title-sub {
-  font-size: normal;
+  font-size: 1.3em;
   font-weight: normal;
   border-left: 0.3em solid #FFB03B;
   color: #333;

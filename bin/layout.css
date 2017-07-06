@@ -6,13 +6,7 @@
   -fx-background-color:transparent;
 }
 
-.button {
-	-fx-background-color: #F2F2F2;
-}
+.html-editor-numbers {
+	 -fx-background-color: lightblue;
 
-HBox#topBar{
- -fx-background-color: #333333;
-}
-#close {
-	-fx-background-color: #333333;
 }

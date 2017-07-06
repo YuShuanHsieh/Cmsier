@@ -125,6 +125,7 @@ h1.content-title {
   line-height: 1.2em;
   margin-top: 0.2em;
   margin-bottom: 0.5em;
+  font-size: 1.8em;
 }
 
 h2.content-title-sub {
@@ -133,6 +134,7 @@ h2.content-title-sub {
   margin-top: 0.2em;
   margin-bottom: 0.5em;
   text-indent: 0.2em;
+  font-size: 1.3em;
 }
 p{
   line-height: 150%;
