@@ -18,7 +18,7 @@
             <targetURL>./page/three.html</targetURL>
         </MenuItem>
     </Menu>
-    <layout>rose</layout>
+    <layout>blue</layout>
     <localPath>/Users/yu-shuan/FinalProject/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
     <subTitle>The first version</subTitle>

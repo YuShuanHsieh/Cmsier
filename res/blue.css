@@ -116,6 +116,7 @@ The default setting of CSS layout
   width: 70%;
   margin: auto;
   margin-top: 2em;
+  padding-bottom: 2em;
 }
 
 h1.content-title {
