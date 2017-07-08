@@ -1,8 +1,10 @@
 # Problems should be solved
 1. Export jar.
+2. restrict the number of menu
+3. The process of upload files
 
 # Unfinished functions
-1. Add image-adding function. (Priority)
-2. Design different template. (working now!)
-5. A list page and related XML file.
-6. Download files from web server.
+1. add more template html. (working now!)
+2. A list page and related XML file.
+3. Download files from web server.
+4. Add instructions.

@@ -5,3 +5,11 @@
 	 -fx-border-style: none;
   -fx-background-color:transparent;
 }
+
+.button#upload, .button#save, .button#setting {
+  -fx-background-color: #F2F2F2;
+}
+
+.top-toolbar, .bottom-toolbar{
+  -fx-background-color: #F2F2F2;
+}

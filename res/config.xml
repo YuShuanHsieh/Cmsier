@@ -10,17 +10,13 @@
             <targetURL>./page/first.html</targetURL>
         </MenuItem>
         <MenuItem>
-            <name>Taiwan</name>
-            <targetURL>./page/second.html</targetURL>
-        </MenuItem>
-        <MenuItem>
-            <name>Content</name>
-            <targetURL>./page/three.html</targetURL>
+            <name>Menu2</name>
+            <targetURL>./my-page/second.html</targetURL>
         </MenuItem>
     </Menu>
     <layout>blue</layout>
     <localPath>/Users/yu-shuan/FinalProject/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
-    <subTitle>The first version</subTitle>
+    <subTitle>My websites</subTitle>
     <title>The First Website</title>
 </Settings>
