@@ -6,17 +6,13 @@
             <targetURL>./index.html</targetURL>
         </MenuItem>
         <MenuItem>
-            <name>Japen</name>
-            <targetURL>./page/first.html</targetURL>
-        </MenuItem>
-        <MenuItem>
-            <name>Menu2</name>
-            <targetURL>./my-page/second.html</targetURL>
+            <name>About Me</name>
+            <targetURL>./page/example.html</targetURL>
         </MenuItem>
     </Menu>
     <layout>blue</layout>
-    <localPath>/Users/yu-shuan/FinalProject/</localPath>
+    <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
-    <subTitle>My websites</subTitle>
-    <title>The First Website</title>
+    <subTitle>My websites!!</subTitle>
+    <title>My First Application</title>
 </Settings>
