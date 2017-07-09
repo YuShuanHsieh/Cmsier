@@ -10,9 +10,9 @@
             <targetURL>./page/example.html</targetURL>
         </MenuItem>
     </Menu>
-    <layout>blue</layout>
+    <layout>rose</layout>
     <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
-    <subTitle>My websites!!</subTitle>
+    <subTitle>My websites</subTitle>
     <title>My First Application</title>
 </Settings>
