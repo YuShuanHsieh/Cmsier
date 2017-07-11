@@ -13,6 +13,7 @@ import controller.Controller;
 import java.util.LinkedList;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import system.data.CSSXMLsettings;
 import system.data.Data;
 import system.data.Settings;
 
@@ -21,6 +22,7 @@ public class SystemManager {
   private Stage window;
   private Data data;
   private Settings settings;
+  private CSSXMLsettings cssSettings;
   private List<Controller> controllerList;
   private StackPane pane;
   
@@ -39,6 +41,14 @@ public class SystemManager {
   
   public StackPane getPane() {
     return this.pane;
+  }
+  
+  public void setCSSSettings(CSSXMLsettings cssSettings) {
+    this.cssSettings = cssSettings;
+  }
+  
+  public CSSXMLsettings getCSSSettings() {
+    return this.cssSettings;
   }
   
   public Settings getSettings() {

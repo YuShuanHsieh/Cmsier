@@ -51,7 +51,7 @@ The default setting of CSS layout
 }
 
 .header{
-  background-color: #669966;
+  background-color: <bk>;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
@@ -64,13 +64,13 @@ The default setting of CSS layout
 }
 
 .header-title {
-  color: #FFFFFF;
+  color: <title>;
   font-weight: normal;
   letter-spacing: 0.1em;
 }
 
 .header-subTitle {
-  color: #FFFFFF;
+  color: <subtitle>;
   font-weight: normal;
   letter-spacing: 0.1em;
   font-size: 1.2em;
@@ -78,7 +78,7 @@ The default setting of CSS layout
 }
 
 .nav{
-  background-color: #669966;
+  background-color: <bk>;
   height: 3em;
 }
 .nav > .nav-box {
@@ -108,7 +108,7 @@ The default setting of CSS layout
 
 .nav-item-link:hover {
   background-color: #F2F2F2;
-  color: #669966;
+  color: <bk>;
 
 }
 

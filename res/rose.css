@@ -52,7 +52,6 @@ The default setting of CSS layout
 
 .header{
   background-color: #F2385A;
-  color: #FFFFFF;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
@@ -70,6 +69,7 @@ The default setting of CSS layout
 .header-title {
   font-weight: normal;
   letter-spacing: 0.1em;
+  color: #FFFFFF;
 }
 
 .header-subTitle {
@@ -77,6 +77,7 @@ The default setting of CSS layout
   letter-spacing: 0.1em;
   font-size: 1.2em;
   margin-top: 0.5em;
+  color: #FFFFFF;
 }
 
 .header-menu-container {

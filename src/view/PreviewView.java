@@ -30,13 +30,13 @@ public class PreviewView extends Dialog<String> implements View {
     this.setTitle("Web page preview");
     this.getDialogPane().setContent(webView);
     this.getDialogPane().getButtonTypes().add(okayButton);
-    update();
   }
 
   @Override
   public void update() {
     String pageLocalPath = controller.getSystemManager().getData().getCurrentPageLocalPath();
     webEngine.load(pageLocalPath);
+    webEngine.reload();
   }
 
   @Override

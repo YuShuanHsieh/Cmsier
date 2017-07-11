@@ -55,7 +55,7 @@ public class Templatetor {
     }
   }
   
-  public boolean run() throws IOException {
+  public File run() throws IOException {
     
     int charNumber = 0;
     boolean recordState = false;
@@ -86,7 +86,7 @@ public class Templatetor {
     writer.close();
     fileReader.close();
     
-    return true;
+    return this.targetFile;
   }
   
   private void append(FileWriter writer)throws IOException {

@@ -113,7 +113,7 @@ public class EditController extends Controller{
      
     PreviewController preview = new PreviewController();
     systemManager.register(preview);
-    preview.init();    
+    preview.init();
   } 
   
   
