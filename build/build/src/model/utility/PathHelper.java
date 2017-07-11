@@ -6,7 +6,7 @@ package model.utility;
 import data.SetPage;
 import data.Settings;
 import data.SimplePage;
-
+import system.SystemSettings;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,59 +19,64 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PathHelper {
-  
-  private static final String defaultDirectoryPath = "/Documents/CMS/";
-  private static final String[] subDefaultDirectorys = {"draft/","draft/page/", "page/","upload/","web/","res/"};
+  /*
+   * @see SystemSettings 
+   */
+  private static final String[] defaultDirectories = {
+      SystemSettings.draftDirectory, SystemSettings.draftDirectory + "/" + SystemSettings.defaultSubDirectory + "/", 
+      SystemSettings.editDirectory, SystemSettings.imgDirectory,
+      SystemSettings.publishDirectory, SystemSettings.publishDirectory + "/" + SystemSettings.defaultSubDirectory + "/",
+      SystemSettings.sourceDirectory};
   
   public String createDefaultDirectoyInLocalPath(){
     String homeDirectory = System.getProperty("user.home");
-    String localPath = "";
-    File defaultDirectory = new File(homeDirectory + defaultDirectoryPath);
+    String localFullPath = "";
+    File defaultDirectory = new File(homeDirectory + SystemSettings.defaultDirectoryPath);
     
     try{
+      
       if(!defaultDirectory.exists()) {
         defaultDirectory.mkdirs();
       }
       
-      localPath = homeDirectory + defaultDirectoryPath;
+      localFullPath = homeDirectory + SystemSettings.defaultDirectoryPath;
       
-      for(String subDefaultDirectory : subDefaultDirectorys) {
-        File sub = new File(homeDirectory + defaultDirectoryPath + subDefaultDirectory);
+      for(String subDefaultDirectory : defaultDirectories) {
+        File sub = new File(homeDirectory + SystemSettings.defaultDirectoryPath + subDefaultDirectory);
         if(!sub.exists()) {
           sub.mkdirs();
         }
       } 
       
-      copyInnerFileToLocalPath(localPath, "res/");
-      copyInnerFileToLocalPath(localPath, "page/");
+      copyInnerFileToLocalPath(localFullPath, SystemSettings.sourceDirectory + "/");
+      copyInnerFileToLocalPath(localFullPath, SystemSettings.editDirectory + "/");
 
       
     }catch(Exception e) {
       e.printStackTrace();
       return null;
     }
-    return homeDirectory + defaultDirectoryPath;
+    return homeDirectory + SystemSettings.defaultDirectoryPath;
   }
   
-  /* !!Notice: ignore the ./default/ folder.
-   * @param pathURL The initial pathURL representing to a specific parent folder. such as ./web/
+  /* !!Notice: ignore the default folder.
+   * @param directoryPath representing to a specific parent folder. such as web/
    */
-  public String getPathFromSimplePage(SimplePage simplePage,Settings settings, String pathURL) {
+  public String getPathFromSimplePage(SimplePage simplePage,Settings settings, String directoryPath) {
     Deque<SetPage> stack = new LinkedList<SetPage>();
     SetPage setPage = simplePage.getParent();
     
     while(setPage != null) {
-      if(pathURL.equals(settings.getLocalPath() + "page/") || !setPage.getName().equals("default"))
+      if(directoryPath.equals(settings.getLocalPath() + SystemSettings.editDirectory + "/") || !setPage.getName().equals("default"))
       stack.push(setPage);
       setPage = setPage.getParent();
     }
     
     while(!stack.isEmpty()) {
-      pathURL = pathURL + stack.pop().getName() + "/";
+      directoryPath = directoryPath + stack.pop().getName() + "/";
     }
     
-    pathURL = pathURL + simplePage.getName();
-    return pathURL;
+    return directoryPath + simplePage.getName();
   }
   
   public boolean checkPathFromSimplePage(SimplePage simplePage, int type) {
@@ -79,16 +84,16 @@ public class PathHelper {
     String pathUrl = "";
     
     if(type == 1){
-      pathUrl = "web/";
+      pathUrl = SystemSettings.publishDirectory + "/";
     }
     else {
-      pathUrl = "draft/";
+      pathUrl = SystemSettings.draftDirectory + "/";
     }
     
     Deque<SetPage> stack = new LinkedList<SetPage>();
     SetPage setPage = simplePage.getParent();
     
-    while(setPage != null && !setPage.getName().equals("default")) {
+    while(setPage != null && !setPage.getName().equals(SystemSettings.draftDirectory)) {
       stack.push(setPage);
       setPage = setPage.getParent();
     }
@@ -135,7 +140,9 @@ public class PathHelper {
       
       while(!stack.isEmpty()){
         for(File file : stack.pop().listFiles()) {
-          file.delete();
+          if(!file.isDirectory()) {
+            file.delete();
+          }
         }
       }
     }

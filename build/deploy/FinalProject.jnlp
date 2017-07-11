@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="FinalProject.jar" size="184303" download="eager" />
+    <jar href="FinalProject.jar" size="185028" download="eager" />
     <jar href="libs/commons-io-2.5.jar" size="208696" download="eager" />
     <jar href="libs/commons-net-3.6.jar" size="307410" download="eager" />
   </resources>

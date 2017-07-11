@@ -5,6 +5,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.Marshaller;
+import system.SystemSettings;
 import data.Settings;
 
 public class XmlHelper {
@@ -13,7 +14,7 @@ public class XmlHelper {
   private Settings settings;
   
   public XmlHelper() {
-    XMLfile = new File("./res/config.xml");
+    XMLfile = new File(SystemSettings.settingsXMLPath);
   }
   
   public Settings retrieveSettingFromXML() {

@@ -96,8 +96,7 @@
 		<fx:resources id="appRes">
 			<fx:fileset dir="dist" includes="FinalProject.jar"/>
 			<fx:fileset dir="dist" includes="libs/*"/>
-			<fx:fileset dir="dist" includes="page/**"/>
-			<fx:fileset dir="dist" includes="page/*"/>
+			<fx:fileset dir="dist" includes="edit/**"/>
 			<fx:fileset dir="dist" includes="res/**"/>
 			<fx:fileset dir="dist" includes="template/**"/>
 		</fx:resources>

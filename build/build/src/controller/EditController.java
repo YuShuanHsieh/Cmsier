@@ -11,7 +11,6 @@ import data.SetPage;
 import data.SettingItem;
 import data.Settings;
 import data.SimplePage;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
@@ -77,7 +76,6 @@ public class EditController extends Controller{
   
   private void saveThePageContent(MouseEvent event) {
     CheckBox checkShow = null;
-    TreeView<?> targetTreeView;
     String menuItemName = "";
     String content = "";
     

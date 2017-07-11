@@ -13,6 +13,7 @@ import data.SetPage;
 import data.SettingItem;
 import data.Settings;
 import data.SimplePage;
+import system.SystemSettings;
 
 public class DataHelper {
 
@@ -38,7 +39,7 @@ public class DataHelper {
    */
   public Data retrieveDataFromFiles(String localPath) {
     Data data = new Data();
-    String rootDirectory = localPath +  "page/";
+    String rootDirectory = localPath + SystemSettings.editDirectory + "/";
     retrieveDataFromFile(data, rootDirectory, null);
     return data;
   }

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import system.SystemSettings;
 import data.Data;
 import data.SetPage;
 import data.SettingItem;
@@ -27,11 +27,11 @@ public class Generator {
     String cSSLinkURL; // should be changed.
     
     if(type == 1) {
-      pagePathURL = settings.getLocalPath() + "web/";
-      cSSLinkURL = "\"" +settings.getPublish() + "res/" + settings.getLayout() + ".css\"";
+      pagePathURL = settings.getLocalPath() + SystemSettings.publishDirectory + "/";
+      cSSLinkURL = "\"" +settings.getPublish() + SystemSettings.sourceDirectory + "/" + settings.getLayout() + ".css\"";
     }
     else {
-      pagePathURL = settings.getLocalPath() + "draft/";
+      pagePathURL = settings.getLocalPath() + SystemSettings.draftDirectory + "/";
       cSSLinkURL = "\"file://" + settings.getLocalPath() + "res/" + settings.getLayout() + ".css\"";
     }
     
@@ -42,7 +42,7 @@ public class Generator {
       }
       
       File finalPage = new File(pagePathURL);
-      File templateFile = new File("./template/"+ settings.getLayout() +".html"); //should be changed
+      File templateFile = new File( SystemSettings.templateDirectory + "/" + settings.getLayout() +".html"); //should be changed
       
       FileInputStream templateInput = new FileInputStream(templateFile);
       FileWriter finalPageWriter;

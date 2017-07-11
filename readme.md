@@ -1,7 +1,6 @@
 # Problems should be solved
-1. Export jar.
-2. restrict the number of menu
-3. The process of upload files
+1. restrict the number of menu
+2. The process of upload files
 
 # Unfinished functions
 1. add more template html. (working now!)

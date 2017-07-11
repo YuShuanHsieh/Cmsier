@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 //import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPClient;
+import system.SystemSettings;
 
 public class UploadModel implements Model {
 
@@ -65,7 +66,7 @@ public class UploadModel implements Model {
     try{
       Generator generator = new Generator();
       PathHelper pathHelper = new PathHelper();
-      pathHelper.deleteFilesFromDirectory("./web/");
+      pathHelper.deleteFilesFromDirectory(controller.getSystemManager().getSettings().getLocalPath() + "web/");
       generator.generateAllPage(controller.getSystemManager().getSettings(), controller.getSystemManager().getData());
       return true;
     }catch(Exception e) {
@@ -74,18 +75,20 @@ public class UploadModel implements Model {
   }
   
   public boolean uploadFinalPageFile() {
+    String localPath = controller.getSystemManager().getSettings().getLocalPath();
     List<String> directoryList = new LinkedList<String>();
     List<String> tempList = new LinkedList<String>();
     String pathName;
     String publishPath;
+    String ftpPath = "/"+SystemSettings.ftpdefaultDirectory+"/";
     
-    directoryList.add("./page");
-    directoryList.add("./res");
-    directoryList.add("./web");
-    directoryList.add("./upload");
+    directoryList.add(SystemSettings.editDirectory);
+    directoryList.add(SystemSettings.sourceDirectory);
+    directoryList.add(SystemSettings.publishDirectory);
+    directoryList.add(SystemSettings.imgDirectory);
     
     try{
-      ftpClient.changeWorkingDirectory("/public_html");
+      ftpClient.changeWorkingDirectory("/" + SystemSettings.ftpdefaultDirectory);
       ftpClient.enterLocalPassiveMode();
       ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
     }
@@ -98,7 +101,7 @@ public class UploadModel implements Model {
       for(String directoryName : directoryList){
         pathName = directoryName + "/";
         publishPath = pathName;
-        File directory = new File(pathName);
+        File directory = new File(localPath + pathName);
         File[] files = directory.listFiles();
       
         for(File file : files) {
@@ -108,17 +111,17 @@ public class UploadModel implements Model {
           }
           else {
             try{
-              FileInputStream uploadfile = new FileInputStream(pathName + file.getName());
+              FileInputStream uploadfile = new FileInputStream(localPath + pathName + file.getName());
               
-              if(publishPath.contains("/web")) {
-                publishPath = publishPath.replace("/web", "");
+              if(publishPath.contains(SystemSettings.publishDirectory + "/")) {
+                publishPath = publishPath.replace(SystemSettings.publishDirectory + "/", "");
               }
               
-              if(ftpClient.cwd("/public_html/" + publishPath) == 550){
-                ftpClient.makeDirectory("/public_html/" + publishPath);
+              if(ftpClient.cwd(ftpPath + publishPath) == 550){
+                ftpClient.makeDirectory(ftpPath + publishPath);
               }
-              
-              ftpClient.storeFile( "/public_html/" + publishPath + file.getName(), uploadfile);
+              System.out.println("path test : " + localPath + pathName + file.getName());
+              ftpClient.storeFile( ftpPath + publishPath + file.getName(), uploadfile);
             }
             catch(IOException e) {
               e.printStackTrace();

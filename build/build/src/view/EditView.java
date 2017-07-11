@@ -11,13 +11,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.HTMLEditor;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.web.HTMLEditor;
 import view.component.ImageButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
@@ -52,6 +52,7 @@ public class EditView implements View{
 
 	  editArea = new HTMLEditor();
 	  editArea.setId("edit");
+	  
 	  
 	  TreeViewOfSetPage = new TreeView<Page>();
 	  TreeViewOfSetPage.setId("tree"); 

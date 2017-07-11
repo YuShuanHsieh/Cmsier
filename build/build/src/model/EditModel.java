@@ -22,6 +22,7 @@ import model.utility.PathHelper;
 import model.utility.XmlHelper;
 import model.utility.DataHelper;
 import model.generator.Upload;
+import system.SystemSettings;
 
 public class EditModel implements Model {
   
@@ -56,7 +57,7 @@ public class EditModel implements Model {
     Settings settings = controller.getSystemManager().getSettings();
     Data data = controller.getSystemManager().getData();
     PathHelper pathHelper = new PathHelper();
-    String pathUrl = settings.getLocalPath() +  "page/";
+    String pathUrl = settings.getLocalPath() + SystemSettings.editDirectory + "/";
     
     Page page = (Page)treeItem;
     if(page.getName().endsWith("html")){
@@ -82,7 +83,7 @@ public class EditModel implements Model {
 
       }catch(Exception e) {
         e.printStackTrace();
-        //return false;
+        return false;
       }      
     }
     
@@ -151,7 +152,8 @@ public class EditModel implements Model {
   }
   
   private void deleteExistingPageFile(String pageName) {
-    File file = new File("./page/");
+    String localFullPath = controller.getSystemManager().getSettings().getLocalPath();
+    File file = new File(localFullPath + SystemSettings.editDirectory + "/");
     List<File> fileList = Arrays.asList(file.listFiles());
     List<File> tempFile = new LinkedList<File>();
     
@@ -175,7 +177,7 @@ public class EditModel implements Model {
   public void addNewSimplePage(SetPage setPage, String fileName) {
     Data data = controller.getSystemManager().getData();
     String fullFileName = fileName.trim() + ".html";
-    String defaultPath = controller.getSystemManager().getSettings().getLocalPath() + "page/";
+    String defaultEditPath = controller.getSystemManager().getSettings().getLocalPath() + SystemSettings.editDirectory +"/";
     Deque<SetPage> stack = new LinkedList<SetPage>();
     
     if(data.isExistingPage(2, fullFileName)) {
@@ -191,11 +193,11 @@ public class EditModel implements Model {
     }
     
     while(!stack.isEmpty()) {
-      defaultPath = defaultPath + stack.pop().getName() + "/";
+      defaultEditPath = defaultEditPath + stack.pop().getName() + "/";
     }
    
     try{
-      File newFile = new File(defaultPath + fullFileName);
+      File newFile = new File(defaultEditPath + fullFileName);
       newFile.createNewFile(); 
       controller.getSystemManager().notifyAllController();
     } 
@@ -273,7 +275,8 @@ public class EditModel implements Model {
         String fileName = splitFile[splitFile.length -1];
         
         File originalFile = new File(filePah);
-        File newFile = new File( controller.getSystemManager().getSettings().getLocalPath() + "upload/" + fileName);
+        String imgUploadPath = controller.getSystemManager().getSettings().getLocalPath() + SystemSettings.imgDirectory + "/";
+        File newFile = new File(imgUploadPath + fileName);
         
         try{
           if(!newFile.exists()){
