@@ -47,45 +47,45 @@ The default setting of CSS layout
 
 .wrap{
   min-height: 100%;
-  background-color: #fdf7e9;
+  background-color: #F2F2F2;
 }
 
 .header{
-  background-color: #1d5468;
+  background-color: #4d001a;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
-  border-top: 1em solid #0f2c35;
+  border-bottom: 1em solid #4d4d4d;
+  height: 70px;
 }
 
 .header-container {
-  width: 70%;
-  margin: auto;
+  max-width: 500px;
+  height: 70px;
+  float: left;
+  margin-left: 2em;
 }
 
 .header-title {
-  color: #FFFFFF;
   font-weight: normal;
   letter-spacing: 0.1em;
+  color: #ffffff;
 }
 
 .header-subTitle {
-  color: #FFFFFF;
   font-weight: normal;
   letter-spacing: 0.1em;
   font-size: 1.2em;
   margin-top: 0.5em;
+  color: #ffffcc;
 }
 
-.nav{
-  background-color: #1d5468;
-  height: 3em;
-}
-.nav > .nav-box {
-  height: 3em;
+.header-menu-container {
+  height: 70px;
+  float: left;
+  margin-left: 2em;
   display: flex;
   align-items: center;
-  justify-content:center;
 }
 
 .nav-item {
@@ -93,23 +93,23 @@ The default setting of CSS layout
 }
 
 .nav-item-link {
-  color: #F2F2F2;
+  width: 80px;
+  overflow: hidden;
+  color: #F5EECC;
   display: block;
   text-align: center;
   padding-top: 0.3em;
   padding-bottom: 0.3em;
   padding-left: 0.5em;
   padding-right: 0.5em;
-  border: 1px solid #F2F2F2;
-  border-radius: 3px;
   margin-left: 0.2em;
   margin-right: 0.2em;
 }
 
 .nav-item-link:hover {
-  background-color: #F2F2F2;
-  color: #1d5468;
-
+  color: #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+  border-top: 2px solid #FFFFFF;
 }
 
 .main {
@@ -121,23 +121,22 @@ The default setting of CSS layout
 }
 
 h1.content-title {
-  font-size: 1.8em;
-  border-left: 0.3em solid #B64926;
+  border-bottom: 0.2em solid #647678;
   text-indent: 0.2em;
   color: #333;
   line-height: 1.2em;
   margin-top: 0.2em;
   margin-bottom: 0.5em;
+  font-size: 1.8em;
 }
 
 h2.content-title-sub {
-  font-size: 1.3em;
   font-weight: normal;
-  border-left: 0.3em solid #FFB03B;
-  color: #333;
+  color: #F97678;
   margin-top: 0.2em;
   margin-bottom: 0.5em;
   text-indent: 0.2em;
+  font-size: 1.3em;
 }
 p{
   line-height: 150%;
@@ -148,6 +147,6 @@ p{
   text-align: center;
   font-size: small;
   color: #FFFFFF;
-  background: #0f2c35;
+  background: #4d4d4d;
   line-height: 2.5em;
 }

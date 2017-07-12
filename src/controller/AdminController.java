@@ -27,13 +27,24 @@ public class AdminController extends Controller {
   public void init(){
     view.init(); 
     model.init();
-    
+    AdminModel castModel = (AdminModel)model;
     AdminView castView = (AdminView)view; 
     castView.getBrowseButton().setOnMousePressed(this::browseLocalPathEvent);
     allocateColorPickerEvent(AdminView.CSSCOLOR_HEADER);
     allocateColorPickerEvent(AdminView.CSSCOLOR_TITLE);
     allocateColorPickerEvent(AdminView.CSSCOLOR_SUBTITLE);
- 
+    allocateColorPickerEvent(AdminView.CSSCOLOR_MAIN);
+    allocateColorPickerEvent(AdminView.CSSCOLOR_CONTENT);
+    allocateColorPickerEvent(AdminView.CSSCOLOR_FRAME);
+    
+    ChoiceBox<String> choiceBox = castView.getLayoutBox();
+    choiceBox.setOnAction(event -> {
+      String selectedLayout = choiceBox.getSelectionModel().getSelectedItem();
+      this.getSystemManager().getSettings().setLayout(selectedLayout);
+      castModel.generatePreviewPage(selectedLayout);
+      castView.update();
+    });
+    
     castView.setResultConverter(button -> {
       if(button.getButtonData() == ButtonData.OK_DONE) {
         String title = castView.getField(Filed.title).getText();
@@ -48,8 +59,8 @@ public class AdminController extends Controller {
           selectedLayout = "blue";
         }
         
-        ((AdminModel)model).modifySettingsField(title, subTitle, localPath, serverPath, selectedLayout);
-        ((AdminModel)model).modifyCssSetting(this.getSystemManager().getCSSSettings());
+        castModel.modifySettingsField(title, subTitle, localPath, serverPath, selectedLayout);
+        castModel.modifyCssSetting(this.getSystemManager().getCSSSettings());
         
         File file = new File(currentPreviewPagePath);
         file.delete();
@@ -71,13 +82,22 @@ public class AdminController extends Controller {
     ColorPicker node = (ColorPicker)event.getSource();
     String colorValue = "#" + node.getValue().toString().substring(2, 8);
     if(node.getId().equals(AdminView.CSSCOLOR_HEADER)){
-      this.getSystemManager().getCSSSettings().setHeaderBackground(colorValue);
+      this.getSystemManager().getCSSSettings().setHeaderColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_TITLE)) {
       this.getSystemManager().getCSSSettings().setTitleColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_SUBTITLE)) {
       this.getSystemManager().getCSSSettings().setSubTitleColor(colorValue);
+    }
+    else if(node.getId().equals(AdminView.CSSCOLOR_MAIN)) {
+      this.getSystemManager().getCSSSettings().setMainColor(colorValue);;
+    }
+    else if(node.getId().equals(AdminView.CSSCOLOR_CONTENT)) {
+      this.getSystemManager().getCSSSettings().setContentColor(colorValue);;
+    }
+    else if(node.getId().equals(AdminView.CSSCOLOR_FRAME)) {
+      this.getSystemManager().getCSSSettings().setFrameColor(colorValue);;
     }
     try{
       String previewPage = ((AdminModel)model).generateTempCssFile();
@@ -100,6 +120,12 @@ public class AdminController extends Controller {
   public void updatePreviewPage(String pagePath){
     AdminView castView = (AdminView)view;
     castView.updateWebPage(pagePath);
+    currentPreviewPagePath = pagePath;
+  }
+  
+  public void reloadPreviewPage(String pagePath){
+    AdminView castView = (AdminView)view;
+    castView.reloadWebPage(pagePath);
     currentPreviewPagePath = pagePath;
   }
  

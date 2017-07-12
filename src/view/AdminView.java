@@ -7,8 +7,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import javafx.event.Event;
-import javafx.event.EventHandler;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -19,6 +19,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import system.data.CSSXMLsettings;
+import javafx.concurrent.Worker.State;
+import javafx.concurrent.Worker;
 
 public class AdminView extends Dialog<String> implements View {
 
@@ -34,10 +36,17 @@ public class AdminView extends Dialog<String> implements View {
   private ColorPicker BKpick;
   private ColorPicker titleColorPick;
   private ColorPicker subTitleColorPick;
+  private ColorPicker mainColorPick;
+  private ColorPicker contentColorPick;
+  private ColorPicker frameColorPick;
   
   public static final String CSSCOLOR_HEADER = "headerColor";
   public static final String CSSCOLOR_TITLE = "titleColor";
   public static final String CSSCOLOR_SUBTITLE = "subTitleColor";
+  public static final String CSSCOLOR_MAIN = "mainColor";
+  public static final String CSSCOLOR_CONTENT = "contentColor";
+  public static final String CSSCOLOR_FRAME = "frameColor";
+  private boolean isWebPageUpdate = false;
   
   public enum Filed{
     title, subtitle, localPath, serverPath
@@ -101,33 +110,51 @@ public class AdminView extends Dialog<String> implements View {
     webView.setPrefHeight(200);
     webView.setZoom(0.5);
     
+    /* Reload the web page when a new page load into webEngine in order to update its CSS file. */
+    webEngine.getLoadWorker().stateProperty().addListener(
+        new ChangeListener<State>() {
+          @Override public void changed(ObservableValue ov, State oldState, State newState) {
+            if (!isWebPageUpdate && newState == Worker.State.SUCCEEDED) {
+              webEngine.reload();
+              isWebPageUpdate = true;
+            }    
+          }
+        });
+    
     Tab layoutSettingTab = new Tab();
-    layoutSettingTab.setOnSelectionChanged(new EventHandler<Event>() {
-      @Override
-      public void handle(Event event) {
-        webEngine.reload();  
-      }
-    });
     layoutSettingTab.setClosable(false);
     Label layoutLabel = new Label("Layout Style ");
     GridPane layoutGrid = new GridPane();
     layoutBox = new ChoiceBox<String>();
     layoutBox.setId("layoutSetting");
+    layoutBox.setMaxWidth(Double.POSITIVE_INFINITY);
     
     layoutSettingTab.setText("Layout");
     layoutBox.getItems().addAll("blue","rose");
     
-    Label layoutBKLabel = new Label("Select background color");
+    Label layoutBKLabel = new Label("Header");
     BKpick = new ColorPicker();
     BKpick.setId(CSSCOLOR_HEADER);
     
-    Label titleColorLabel = new Label("Select title color");
+    Label titleColorLabel = new Label("Title");
     titleColorPick = new ColorPicker();
     titleColorPick.setId(CSSCOLOR_TITLE);
     
-    Label subTitleColorLabel = new Label("Select title color");
+    Label subTitleColorLabel = new Label("Subtitle");
     subTitleColorPick = new ColorPicker();
     subTitleColorPick.setId(CSSCOLOR_SUBTITLE);
+    
+    Label mainColorLabel = new Label("Background");
+    mainColorPick = new ColorPicker();
+    mainColorPick.setId(CSSCOLOR_MAIN);
+    
+    Label contentColorLabel = new Label("Content");
+    contentColorPick = new ColorPicker();
+    contentColorPick.setId(CSSCOLOR_CONTENT);
+    
+    Label frameColorLabel = new Label("Frame");
+    frameColorPick = new ColorPicker();
+    frameColorPick.setId(CSSCOLOR_FRAME);
     
     layoutGrid.setVgap(5);
     layoutGrid.setHgap(5);
@@ -139,7 +166,13 @@ public class AdminView extends Dialog<String> implements View {
     layoutGrid.add(titleColorPick, 1, 2);
     layoutGrid.add(subTitleColorLabel, 0, 3);
     layoutGrid.add(subTitleColorPick, 1, 3);
-    layoutGrid.add(webView, 2, 0, 1, 5);
+    layoutGrid.add(mainColorLabel, 0, 4);
+    layoutGrid.add(mainColorPick, 1, 4);
+    layoutGrid.add(contentColorLabel, 0, 5);
+    layoutGrid.add(contentColorPick, 1, 5);
+    layoutGrid.add(frameColorLabel, 0, 6);
+    layoutGrid.add(frameColorPick, 1, 6);
+    layoutGrid.add(webView, 2, 0, 1, 8);
     
     layoutGrid.setPadding(new Insets(10));
     layoutSettingTab.setContent(layoutGrid);
@@ -160,11 +193,14 @@ public class AdminView extends Dialog<String> implements View {
     serverPath.setText(setting.getPublish());
     layoutBox.getSelectionModel().select(setting.getLayout());
     
-    BKpick.setValue(Color.web(cssSettings.getHeaderBackground()));
+    BKpick.setValue(Color.web(cssSettings.getHeaderColor()));
     titleColorPick.setValue(Color.web(cssSettings.getTitleColor()));
     subTitleColorPick.setValue(Color.web(cssSettings.getSubTitleColor()));
+    mainColorPick.setValue(Color.web(cssSettings.getMainColor()));
+    contentColorPick.setValue(Color.web(cssSettings.getContentColor()));
+    frameColorPick.setValue(Color.web(cssSettings.getFrameColor()));
   }
-
+  
   @Override
   public Pane getPane() {
     return this.getDialogPane();
@@ -176,8 +212,13 @@ public class AdminView extends Dialog<String> implements View {
   }
   
   public void updateWebPage(String pagePath){
-    webEngine.load("file://" + pagePath);
     webEngine.reload();
+    isWebPageUpdate = true;
+  }
+  
+  public void reloadWebPage(String pagePath){
+    webEngine.load("file://" + pagePath);
+    isWebPageUpdate = false;
   }
   
   public TextField getField(Filed type) {

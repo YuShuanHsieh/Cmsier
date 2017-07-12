@@ -31,16 +31,16 @@ public class AdminModel implements Model {
       CSSXMLsettings cssSetting;
       if(!file.exists()){
         SystemSettings systemSettings = new SystemSettings();
-        cssSetting = systemSettings.getInitLayoutStyle(layoutName);
+        systemSettings.initDefaultLayout();
+        cssSetting = systemSettings.getDefaultLayout(layoutName);
       }
       else{
         XmlHelper xmlHelper = new XmlHelper();
         cssSetting = xmlHelper.retrieveCSSSettingFromXML(layoutName);
       }
       controller.getSystemManager().setCSSSettings(cssSetting);
-      String previewPage = generateTempCssFile();
-     
-      ((AdminController)controller).updatePreviewPage(previewPage);
+      String previewPagePath = generateTempCssFile();
+      ((AdminController)controller).reloadPreviewPage(previewPagePath);
     }
     catch(Exception e){
       e.printStackTrace();
@@ -89,10 +89,13 @@ public class AdminModel implements Model {
     try{
       Templatetor template = new Templatetor(templatePath, tempPath);
       template.setMarkNotation('<', '>');
-      template.addKeyAndContent("bk", cssSetting.getHeaderBackground());
+      template.addKeyAndContent("bk", cssSetting.getHeaderColor());
       template.addKeyAndContent("title", cssSetting.getTitleColor());
       template.addKeyAndContent("subtitle", cssSetting.getSubTitleColor());
-      File tempFile = template.run();
+      template.addKeyAndContent("main", cssSetting.getMainColor());
+      template.addKeyAndContent("content", cssSetting.getContentColor());
+      template.addKeyAndContent("frame", cssSetting.getFrameColor());
+      template.run();
     } 
     catch(IOException e){
       e.printStackTrace();
@@ -106,9 +109,12 @@ public class AdminModel implements Model {
     
     Templatetor template = new Templatetor(templatePath, tempPath);
     template.setMarkNotation('<', '>');
-    template.addKeyAndContent("bk", cssSetting.getHeaderBackground());
+    template.addKeyAndContent("bk", cssSetting.getHeaderColor());
     template.addKeyAndContent("title", cssSetting.getTitleColor());
     template.addKeyAndContent("subtitle", cssSetting.getSubTitleColor());
+    template.addKeyAndContent("main", cssSetting.getMainColor());
+    template.addKeyAndContent("content", cssSetting.getContentColor());
+    template.addKeyAndContent("frame", cssSetting.getFrameColor());
     File tempFile = template.run();
     
     String pageTemplatePath = "template/" + cssSetting.getName() + ".html";
