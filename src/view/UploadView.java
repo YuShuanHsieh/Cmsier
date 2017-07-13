@@ -1,5 +1,5 @@
 package view;
-
+import controller.UploadController;
 import controller.Controller;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.control.TextArea;
+import system.Statement;
 
 public class UploadView extends Dialog<Void> implements View {
 
@@ -25,11 +26,6 @@ public class UploadView extends Dialog<Void> implements View {
   private TextField account;
   private PasswordField password;
   
-  @Override
-  public void setController(Controller controller) {
-    this.controller = controller;
-  }
-
   @Override
   public void init() {
     GridPane subView = new GridPane();
@@ -78,22 +74,15 @@ public class UploadView extends Dialog<Void> implements View {
   /*
    * @param statement a string sentence from controller that describes the progress of uploading.
    *  */
-  public void updateStatement(String statement) {
-    StringBuilder currentStatement = new StringBuilder(statementArea.getText()); 
-    currentStatement.append("\n" + statement);
-    statementArea.setText(currentStatement.toString());
+
+  public <T> void updateStatement(String instruction, Statement<T> statement){
+    if(instruction.equals(UploadController.UPLOAD_PROCESS) && statement.getResult()){
+      StringBuilder currentStatement = new StringBuilder(statementArea.getText()); 
+      currentStatement.append("\n" + statement.getValue());
+      statementArea.setText(currentStatement.toString());
+    }
   }
 
-  @Override
-  public void update() {
-    // TODO Auto-generated method stub
-  }
-  
-  /*
-   * Because this view inherits dialog class,
-   * this function is overrided to show this dialog and return null.
-   * */
-  
   @Override
   public void showPane() {
     this.showAndWait();
@@ -118,5 +107,5 @@ public class UploadView extends Dialog<Void> implements View {
   public Button getButton() {
     return uploadButton;
   }
-
+  
 }

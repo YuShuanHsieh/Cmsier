@@ -1,8 +1,9 @@
 package view;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
-
-import controller.Controller;
+import java.util.stream.Collectors;
 import javafx.scene.control.MenuItem;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -26,17 +27,21 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import model.utility.DataHelper;
+import system.Statement;
 import system.data.Data;
 import system.data.Page;
 import system.data.SetPage;
 import system.data.SettingItem;
+import system.data.Settings;
 import system.data.SimplePage;
 
 public class EditView implements View{
 	
+  public enum RIGHTMENU{add, delete}
+  
   private BorderPane view;
-  private Controller controller;
 	private TreeView<Page> TreeViewOfSetPage;
+	private TreeItem<Page> root;
 	private HTMLEditor editArea;
 	private CheckBox isShowBox;
 	private TextField showInput;
@@ -45,6 +50,12 @@ public class EditView implements View{
 	private final Image offIconImg;
 	private DataHelper dataHelper;
 	private ImageView imgInstruction;
+	
+	/*
+	 * The instruction that determines the update statement.
+	 * */
+	public static final String UPDATE_LIST = "UPDATE_LIST";
+	public static final String UPDATE_MENUITEM = "UPDATE_MENUITEM";
 	
 	public EditView() {
 	  dataHelper = new DataHelper();
@@ -57,6 +68,9 @@ public class EditView implements View{
 	  TreeViewOfSetPage = new TreeView<Page>();
 	  TreeViewOfSetPage.setId("tree"); 
 	  TreeViewOfSetPage.setPrefHeight(760);
+	  
+	  root = new TreeItem<Page> ();
+	  TreeViewOfSetPage.setRoot(root);
 	  
 	  isShowBox = new CheckBox();
 	  showInput = new TextField("Please enter a link name");
@@ -78,18 +92,12 @@ public class EditView implements View{
 	}
 	
 	@Override
-	public void setController(Controller controller) {
-	  this.controller = controller;
-	}
-	
-	@Override
 	public void init() {
-	  
-	  /* Customize HTML editor */
+	  /* Add customized button into HTMLeditor */
 	  ToolBar node = (ToolBar)editArea.lookup(".top-toolbar");
 	  insertButton = new Button("Insert Image");
 	  node.getItems().add(insertButton);
-	  //editArea.sk
+
 	  VBox vbox = new VBox();
     vbox.setId("box");
     vbox.setPadding(new Insets(5));
@@ -139,15 +147,37 @@ public class EditView implements View{
 	  view.setCenter(stackPane);
 	}
 	
-	public ContextMenu getRightButtonMenu(int type) {
+	@Override
+  public <T> void updateStatement(String instruction,Statement<T> statement){
+    if(!statement.getResult()){
+      return;
+    }
+    
+    if(instruction.equals(UPDATE_LIST)){
+      root.getChildren().clear();
+      Data data = (Data)statement.getValue();
+      createTreeView(data);
+    }
+    
+    if(instruction.equals(UPDATE_MENUITEM)){
+      Settings settings = (Settings)statement.getValue();
+      setTreeItemGraphic(settings);
+    }
+    
+  }
+	
+	/*
+	 * @return the pop-up menu interface of right click event.
+	 *  */
+	public ContextMenu getRightButtonMenu(RIGHTMENU type) {
 	  ContextMenu rightButtonMenu = new ContextMenu();
 	  
 	  switch(type) {
-	    case 1:
+	    case add:
 	      MenuItem newItem = new MenuItem("add a page");
 	      rightButtonMenu.getItems().add(newItem);
 	      break;
-	    case 2:
+	    case delete:
 	      MenuItem deleteItem = new MenuItem("delete the page");
         rightButtonMenu.getItems().add(deleteItem);
         break;
@@ -163,20 +193,17 @@ public class EditView implements View{
 	  newPageDialog.setHeaderText("Please enter a unique name: ");
 	  
 	  return newPageDialog;
-	  
 	}
 	
-	public void update(){
-	  Data data = controller.getSystemManager().getData();
-	  createTreeView(data);
-	}
+	public Button getInsertButton() {
+    return this.insertButton;
+  }
+	
 	
 	private void createTreeView(final Data data){
-    TreeItem<Page> root = new TreeItem<Page> ();
     for(SetPage setPage: data.getList()){
       createTreeItem(root, setPage);
     }
-    TreeViewOfSetPage.setRoot(root);
   }
 	
 	private void createTreeItem(TreeItem<Page> parent, SetPage setPage) {
@@ -184,14 +211,7 @@ public class EditView implements View{
     pageRoot.setExpanded(true);
     
     for(SimplePage simplePage: setPage.getPageList()) {
-      TreeItem<Page> pageItem;
-      Optional<SettingItem> result = dataHelper.searchSettingMenuItemBySimplePage(controller.getSystemManager().getSettings(), simplePage);
-      if(result.isPresent()){
-        pageItem = new TreeItem<Page> (simplePage, new ImageView(showIconImg));
-      }
-      else {
-        pageItem = new TreeItem<Page> (simplePage, new ImageView(offIconImg));
-      }
+      TreeItem<Page> pageItem = new TreeItem<Page> (simplePage);
       pageRoot.getChildren().add(pageItem);
     }
 
@@ -202,8 +222,33 @@ public class EditView implements View{
     parent.getChildren().add(pageRoot);
 	}
 	
-	public Button getInsertButton() {
-	  return this.insertButton;
+	private void setTreeItemGraphic(Settings settings){
+	  List<TreeItem<Page>> treeItemList = root.getChildren();
+	  List<TreeItem<Page>> tempList = new LinkedList<TreeItem<Page>>();
+	  
+	  while(true){ 
+	    for(TreeItem<Page> treeItem : treeItemList){
+	      if(treeItem.getValue().getName().endsWith(".html")){
+	        SimplePage page = (SimplePage)treeItem.getValue();
+	        Optional<SettingItem> result = dataHelper.searchSettingMenuItemBySimplePage(settings, page);
+	        if(result.isPresent()){
+	          treeItem.setGraphic(new ImageView(showIconImg));
+	        }
+	        else{
+	          treeItem.setGraphic(new ImageView(offIconImg));
+	        }
+	      } else{
+	        tempList.addAll(treeItem.getChildren());
+	      }
+	    }
+	    if(tempList.isEmpty()){
+	      break;
+	    }
+	    else{
+	      treeItemList = tempList.stream().collect(Collectors.toList());
+	      tempList.clear();
+	    }
+	  }
 	}
 
 }

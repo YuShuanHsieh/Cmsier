@@ -1,16 +1,14 @@
 package view;
-import controller.Controller;
 import javafx.scene.layout.Pane;
+import system.Statement;
 
 public interface View{
   
   void init();
+ 
+  public Pane getPane();
   
-  void update();
+  public void showPane();
   
-  void setController(Controller controller);
-  
-  Pane getPane();
-  
-  void showPane();
+  public <T> void updateStatement(String instruction,Statement<T> statement);
 }

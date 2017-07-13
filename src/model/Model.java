@@ -1,11 +1,21 @@
 package model;
-import controller.Controller;
+import system.SystemManager;
+import view.View;
 
-public interface Model {
-
-  public void init();
+public abstract class Model {
+ 
+  protected SystemManager dataCenter;
+  protected View view;
   
-  public void setController(Controller controller);
+  public void init(){
   
+  }
   
+  public void setDataCenter(SystemManager dataCenter){
+    this.dataCenter = dataCenter;
+  }
+  
+  public void setView(View view){
+    this.view = view;
+  }
 }

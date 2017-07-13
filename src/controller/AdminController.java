@@ -11,24 +11,31 @@ import model.AdminModel;
 import view.AdminView;
 import view.AdminView.Filed;
 import java.io.File;
-import java.io.IOException;
 
 public class AdminController extends Controller {
-
-  private String currentPreviewPagePath;
   
   public AdminController() {
     view = new AdminView();
     model = new AdminModel();
-    attached(view, model);
   }
   
   @Override
   public void init(){
+    attached(view, model);
+    
     view.init(); 
     model.init();
+    
+    setEvent();
+ 
+    view.showPane();
+  }
+  
+  @Override
+  public void setEvent(){
     AdminModel castModel = (AdminModel)model;
     AdminView castView = (AdminView)view; 
+    
     castView.getBrowseButton().setOnMousePressed(this::browseLocalPathEvent);
     allocateColorPickerEvent(AdminView.CSSCOLOR_HEADER);
     allocateColorPickerEvent(AdminView.CSSCOLOR_TITLE);
@@ -40,9 +47,8 @@ public class AdminController extends Controller {
     ChoiceBox<String> choiceBox = castView.getLayoutBox();
     choiceBox.setOnAction(event -> {
       String selectedLayout = choiceBox.getSelectionModel().getSelectedItem();
-      this.getSystemManager().getSettings().setLayout(selectedLayout);
-      castModel.generatePreviewPage(selectedLayout);
-      castView.update();
+      systemManager.getSettings().setLayout(selectedLayout);
+      castModel.changeLayout();
     });
     
     castView.setResultConverter(button -> {
@@ -60,16 +66,11 @@ public class AdminController extends Controller {
         }
         
         castModel.modifySettingsField(title, subTitle, localPath, serverPath, selectedLayout);
-        castModel.modifyCssSetting(this.getSystemManager().getCSSSettings());
-        
-        File file = new File(currentPreviewPagePath);
-        file.delete();
+        castModel.modifyCssSetting();
+       
       }
       return null;
     });
-    
-    view.update();
-    view.showPane();
   }
   
   private void allocateColorPickerEvent(String colorPickId){
@@ -82,27 +83,24 @@ public class AdminController extends Controller {
     ColorPicker node = (ColorPicker)event.getSource();
     String colorValue = "#" + node.getValue().toString().substring(2, 8);
     if(node.getId().equals(AdminView.CSSCOLOR_HEADER)){
-      this.getSystemManager().getCSSSettings().setHeaderColor(colorValue);
+      systemManager.getCSSSettings().setHeaderColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_TITLE)) {
-      this.getSystemManager().getCSSSettings().setTitleColor(colorValue);
+      systemManager.getCSSSettings().setTitleColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_SUBTITLE)) {
-      this.getSystemManager().getCSSSettings().setSubTitleColor(colorValue);
+      systemManager.getCSSSettings().setSubTitleColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_MAIN)) {
-      this.getSystemManager().getCSSSettings().setMainColor(colorValue);;
+      systemManager.getCSSSettings().setMainColor(colorValue);;
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_CONTENT)) {
-      this.getSystemManager().getCSSSettings().setContentColor(colorValue);;
+      systemManager.getCSSSettings().setContentColor(colorValue);;
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_FRAME)) {
-      this.getSystemManager().getCSSSettings().setFrameColor(colorValue);;
+      systemManager.getCSSSettings().setFrameColor(colorValue);;
     }
-    try{
-      String previewPage = ((AdminModel)model).generateTempCssFile();
-      updatePreviewPage(previewPage);
-    } catch(IOException e){}
+    ((AdminModel)model).changeLayoutColor();
   }
   
   private void browseLocalPathEvent(MouseEvent event) {
@@ -117,16 +115,4 @@ public class AdminController extends Controller {
     stage.toFront();
   }
   
-  public void updatePreviewPage(String pagePath){
-    AdminView castView = (AdminView)view;
-    castView.updateWebPage(pagePath);
-    currentPreviewPagePath = pagePath;
-  }
-  
-  public void reloadPreviewPage(String pagePath){
-    AdminView castView = (AdminView)view;
-    castView.reloadWebPage(pagePath);
-    currentPreviewPagePath = pagePath;
-  }
- 
 }

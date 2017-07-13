@@ -11,8 +11,8 @@ public abstract class Controller {
   protected SystemManager systemManager;
   
   public void attached(View view, Model model) {
-    view.setController(this);
-    model.setController(this);
+    model.setView(view);
+    model.setDataCenter(systemManager);
   }
   
   public void setSystemManager(SystemManager systemManager) {
@@ -22,19 +22,16 @@ public abstract class Controller {
   public SystemManager getSystemManager() {
     return this.systemManager;
   }
-  
-  public void notify(boolean state) {
-    if(state) {
-      view.update();
-    }
+
+  public void init(){
+    
   }
   
-  public void init(){
+  public void setEvent(){
     
   }
   
   public Pane getView() {
     return this.view.getPane();
   }
-  
 }

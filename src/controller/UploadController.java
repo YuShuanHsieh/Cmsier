@@ -9,7 +9,8 @@ import javafx.concurrent.Task;
 
 public class UploadController extends Controller {
 
-  
+  public static final String UPLOAD_PROCESS = "UPLOAD_PROCESS";
+    
   public UploadController() {
     view = new UploadView();
     model = new UploadModel();
@@ -23,7 +24,6 @@ public class UploadController extends Controller {
     
     Button uploadButton = ((UploadView)view).getButton();
     uploadButton.setOnMousePressed(this::upload);
-    
     view.showPane();
   }
   
@@ -33,30 +33,23 @@ public class UploadController extends Controller {
     String[] fields = castView.getFieldsText();
     
     setButtonDisable(true);
-    castView.updateStatement(" Start to connect to Web server, please wait.");
-    
     Task<Void> task = new Task<Void>() {
       @Override 
       public Void call() {
-        if(uploadModel.connectToWebServer(fields[0], fields[1], fields[2])){
-          castView.updateStatement(" Connect to Web server successfully.");
-        }
-        else {
-          castView.updateStatement(" Error. Cannot connect to Web server");
+        
+        if(!uploadModel.connectToWebServer(fields[0], fields[1], fields[2])){
           setButtonDisable(false);
           return null;
         }
-        if(uploadModel.generateFinalPage()){
-          castView.updateStatement(" Generate web pages.");
-        }
-        else {
-          castView.updateStatement(" Error. Cannot generate web pages..");
+        
+        if(!uploadModel.generateFinalPage()){
           setButtonDisable(false);
           return null;
         }
-        castView.updateStatement(" Upload web pages now, please wait.");
-        if(uploadModel.uploadFinalPageFile()) {
-          castView.updateStatement(" Upload web pages successfully.");
+        
+        if(!uploadModel.uploadFinalPageFile()) {
+          setButtonDisable(false);
+          return null;
         }
         setButtonDisable(false);
         return null;

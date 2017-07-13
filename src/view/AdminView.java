@@ -1,5 +1,4 @@
 package view;
-import controller.Controller;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import system.data.Settings;
@@ -18,13 +17,13 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import system.Statement;
 import system.data.CSSXMLsettings;
 import javafx.concurrent.Worker.State;
 import javafx.concurrent.Worker;
 
 public class AdminView extends Dialog<String> implements View {
 
-  private Controller controller;
   private TextField titleInput;
   private TextField subTitleInput;
   private TextField localPath;
@@ -46,15 +45,16 @@ public class AdminView extends Dialog<String> implements View {
   public static final String CSSCOLOR_MAIN = "mainColor";
   public static final String CSSCOLOR_CONTENT = "contentColor";
   public static final String CSSCOLOR_FRAME = "frameColor";
+  
+  public static final String UPDATE_SETTINGS = "UPDATE_SETTINGS";
+  public static final String UPDATE_CSSSETTINGS = "UPDATE_CSSSETTINGS";
+  public static final String UPDATE_RELOADPAGE = "UPDATE_RELOADPAGE";
+  public static final String UPDATE_LOADPAGE = "UPDATE_LOADPAGE";
+  
   private boolean isWebPageUpdate = false;
   
   public enum Filed{
     title, subtitle, localPath, serverPath
-  }
-  
-  @Override
-  public void setController(Controller controller) {
-    this.controller = controller;
   }
 
   @Override
@@ -182,23 +182,30 @@ public class AdminView extends Dialog<String> implements View {
     this.getDialogPane().setContent(tabPane);
     this.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
   }
-  
-  @Override
-  public void update() {
-    Settings setting = controller.getSystemManager().getSettings();
-    CSSXMLsettings cssSettings = controller.getSystemManager().getCSSSettings();
-    titleInput.setText(setting.getTitle());
-    subTitleInput.setText(setting.getSubTitle());
-    localPath.setText(setting.getLocalPath());
-    serverPath.setText(setting.getPublish());
-    layoutBox.getSelectionModel().select(setting.getLayout());
     
-    BKpick.setValue(Color.web(cssSettings.getHeaderColor()));
-    titleColorPick.setValue(Color.web(cssSettings.getTitleColor()));
-    subTitleColorPick.setValue(Color.web(cssSettings.getSubTitleColor()));
-    mainColorPick.setValue(Color.web(cssSettings.getMainColor()));
-    contentColorPick.setValue(Color.web(cssSettings.getContentColor()));
-    frameColorPick.setValue(Color.web(cssSettings.getFrameColor()));
+  @Override
+  public <T> void updateStatement(String instruction,Statement<T> statement){
+    if(!statement.getResult()){
+      return;
+    }
+    
+    if(instruction.equals("UPDATE_SETTINGS")){
+      Settings settings = (Settings)statement.getValue();
+      updateSettings(settings);
+    }
+    else if(instruction.equals("UPDATE_CSSSETTINGS")){
+      CSSXMLsettings cssSettings = (CSSXMLsettings)statement.getValue();
+      updateCssSettings(cssSettings);
+    }
+    else if(instruction.equals("UPDATE_RELOADPAGE")){
+      webEngine.reload();
+      isWebPageUpdate = true;
+    }
+    else if(instruction.equals("UPDATE_LOADPAGE")){
+      String pagePath = (String)statement.getValue();
+      webEngine.load("file://" + pagePath);
+      isWebPageUpdate = false;
+    }
   }
   
   @Override
@@ -209,16 +216,6 @@ public class AdminView extends Dialog<String> implements View {
   @Override
   public void showPane() {
     this.showAndWait();
-  }
-  
-  public void updateWebPage(String pagePath){
-    webEngine.reload();
-    isWebPageUpdate = true;
-  }
-  
-  public void reloadWebPage(String pagePath){
-    webEngine.load("file://" + pagePath);
-    isWebPageUpdate = false;
   }
   
   public TextField getField(Filed type) {
@@ -237,11 +234,28 @@ public class AdminView extends Dialog<String> implements View {
   }
   
   public ChoiceBox<String> getLayoutBox() {
-    return this.layoutBox;
+    return this.layoutBox;  
   }
   
   public Button getBrowseButton() {
     return this.localPathBrowseButton;
+  }
+  
+  private void updateSettings(Settings setting) {
+    titleInput.setText(setting.getTitle());
+    subTitleInput.setText(setting.getSubTitle());
+    localPath.setText(setting.getLocalPath());
+    serverPath.setText(setting.getPublish());
+    layoutBox.getSelectionModel().select(setting.getLayout());
+  }
+  
+  private void updateCssSettings(CSSXMLsettings cssSettings){
+    BKpick.setValue(Color.web(cssSettings.getHeaderColor()));
+    titleColorPick.setValue(Color.web(cssSettings.getTitleColor()));
+    subTitleColorPick.setValue(Color.web(cssSettings.getSubTitleColor()));
+    mainColorPick.setValue(Color.web(cssSettings.getMainColor()));
+    contentColorPick.setValue(Color.web(cssSettings.getContentColor()));
+    frameColorPick.setValue(Color.web(cssSettings.getFrameColor()));
   }
   
 }

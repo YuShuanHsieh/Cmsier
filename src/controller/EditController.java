@@ -1,17 +1,19 @@
 package controller;
 
 import view.EditView;
+import view.EditView.RIGHTMENU;
 import model.EditModel;
-
 import java.io.File;
 import java.util.Optional;
 import controller.AdminController;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextField;
@@ -29,101 +31,105 @@ import controller.UploadController;
 public class EditController extends Controller{
   
   private ContextMenu currentRightMenu = null;
-  private TreeItem<?> selectedItem;
+  private TreeItem<?> selectedPage;
+  private TreeView<?> pageList;
+  private Button saveButton;
+  private Button settingButton;
+  private Button uploadButton;
+  private CheckBox checkBox;
+  private TextField menuNameField;
+  private ViewFactory viewFactory;
+  private HTMLEditor editor;
+  private GridPane centerPane;
 
   public EditController() {
     view = new EditView();
     model = new EditModel();
-    attached(view, model);
+    viewFactory = new ViewFactory();
   }
   
   @Override
   public void init(){
+    attached(view, model);
+    
     view.init();
     model.init();
     
-    view.update();
+    pageList = (TreeView<?>)view.getPane().lookup("#tree");
+    saveButton = (Button)view.getPane().lookup("#save");
+    settingButton = (Button)view.getPane().lookup("#setting");
+    uploadButton = (Button)view.getPane().lookup("#upload");
+    checkBox = (CheckBox)view.getPane().lookup("#isShow");
+    menuNameField = (TextField)view.getPane().lookup("#showInput");
+    editor = (HTMLEditor)view.getPane().lookup("#edit");
+    centerPane = (GridPane)view.getPane().lookup("#center-edit");
     
-    view.getPane().lookup("#tree").setOnMousePressed(this::selectSimplePage);
-    view.getPane().lookup("#save").setOnMousePressed(this::saveThePageContent);
-    view.getPane().lookup("#setting").setOnMousePressed(this::openSettingEvent);
-    view.getPane().lookup("#upload").setOnMousePressed(this::uploadfile);
-    view.getPane().lookup("#isShow").setOnMousePressed(this::checkShowBoxEvent);
-       
+    setEvent();
+  }
+  
+  @Override
+  public void setEvent(){
+    pageList.setOnMousePressed(this::selectSimplePage);
+    saveButton.setOnMousePressed(this::saveThePageContent);
+    settingButton.setOnMousePressed(this::openSettingEvent);
+    uploadButton.setOnMousePressed(this::uploadfile);
+    checkBox.setOnMousePressed(this::checkShowBoxEvent);
     ((EditView)view).getInsertButton().setOnMousePressed(this::insertMediaEvent);
   }
   
+  /*
+   * Below is the function of each event.
+  */
   private void checkShowBoxEvent(MouseEvent event) {
-    TreeView<?> targetTreeView = (TreeView<?>)view.getPane().lookup("#tree");
-    TreeItem<?> targetTreeItem = targetTreeView.getSelectionModel().getSelectedItem();
-    SimplePage currentSimplePage = (SimplePage)targetTreeItem.getValue();
-    TextField showInput = (TextField)view.getPane().lookup("#showInput");
-    CheckBox checkShowBox = (CheckBox) event.getSource();
-    if(checkShowBox.isSelected()) {
-      showInput.setVisible(false);
+    SimplePage currentSimplePage = (SimplePage)selectedPage.getValue();
+    if(checkBox.isSelected()) {
+      menuNameField.setVisible(false);
     }
     else {
-      showInput.setVisible(true);
+      menuNameField.setVisible(true);
     }
     currentSimplePage.setChangeState(true);
   }
   
   private void openSettingEvent(MouseEvent event){
     AdminController adminController = new AdminController();
-    this.getSystemManager().register(adminController);
+    systemManager.register(adminController);
     adminController.init();
   }
   
   private void saveThePageContent(MouseEvent event) {
-    CheckBox checkShow = null;
     String menuItemName = "";
     String content = "";
-    
-    
-    if(view.getPane().lookup("#isShow") instanceof CheckBox) {
-      checkShow = (CheckBox) view.getPane().lookup("#isShow");      
-    }
-    
-    if(checkShow.isSelected()) {
-      if(view.getPane().lookup("#showInput") instanceof TextField) {
-        TextField checkShowInput = (TextField) view.getPane().lookup("#showInput");
-        if(!checkShowInput.getText().trim().equals("")){
-          menuItemName = checkShowInput.getText();
-        }
-      }
-    }
-    
-    if(view.getPane().lookup("#edit") instanceof HTMLEditor) {
-      HTMLEditor editor = (HTMLEditor)view.getPane().lookup("#edit");
-      content = editor.getHtmlText();
-    }
-
-    if(selectedItem == null) {
-      ViewFactory viewFactory = new ViewFactory();
+   
+    if(selectedPage == null) {
       viewFactory.createAlertWindow("Please select a page.");
       return;
     }
-      
-    if(!((EditModel)model).savePageContent(selectedItem.getValue(), content, menuItemName)) {
-      ViewFactory viewFactory = new ViewFactory();
+    
+    if(checkBox.isSelected()) {
+      menuItemName = menuNameField.getText();
+      if(menuItemName.trim().isEmpty()){
+        viewFactory.createAlertWindow("The name field of menu should not be empty.");
+        return;
+      }
+    }
+    content = editor.getHtmlText();
+    
+    if(!((EditModel)model).savePageContent(selectedPage.getValue(), content, menuItemName)) {
       viewFactory.createAlertWindow("This page cannot be saved, please check the content or setting.");
       return;
     }
-    
-     
+        
     PreviewController preview = new PreviewController();
     systemManager.register(preview);
     preview.init();
   } 
   
-  
   private void insertMediaEvent(MouseEvent event) {
-    ViewFactory factory = new ViewFactory();
     ExtensionFilter filter = new ExtensionFilter("Image Files", "*.png", "*.jpg");
-    FileChooser fileChooser = factory.createFileChooser("Select an image file", filter);
+    FileChooser fileChooser = viewFactory.createFileChooser("Select an image file", filter);
     File selectedFile = fileChooser.showOpenDialog(this.getSystemManager().getWindow());
     if(selectedFile != null){
-      HTMLEditor editor = (HTMLEditor) view.getPane().lookup("#edit");
       String clipedContent = ((EditModel)model).clipHTMLContent(editor.getHtmlText());
       StringBuilder stringbuilder = new StringBuilder(clipedContent);
     
@@ -133,54 +139,53 @@ public class EditController extends Controller{
   }
   
   private void selectSimplePage(MouseEvent event) {
+    selectedPage = pageList.getSelectionModel().getSelectedItem();
     DataHelper dataHelper = new DataHelper();
-    TreeView<?> target = (TreeView<?>)event.getSource();
-    selectedItem = target.getSelectionModel().getSelectedItem();
     
-    if(selectedItem != null && selectedItem.getValue() instanceof Page) {
-      Page simplePage = (Page)selectedItem.getValue();
+    if(selectedPage == null) {
+      return;
+    }
+    
+    Page page = (Page)selectedPage.getValue();
       
-      if(currentRightMenu != null) {
-        currentRightMenu.hide();
-        currentRightMenu = null;
-      }
+    if(currentRightMenu != null) {
+      currentRightMenu.hide();
+      currentRightMenu = null;
+    }
       
-      if(simplePage.toString().endsWith(".html")){
+    if(page.toString().endsWith(".html")){
         
-        view.getPane().lookup("#center-edit").setVisible(true);
-        //((BorderPane)view.getPane()).getCenter().setVisible(true);
-        ((HTMLEditor)view.getPane().lookup("#edit")).setHtmlText(((SimplePage)simplePage).getPageContent());
+      centerPane.setVisible(true);
+      editor.setHtmlText(((SimplePage)page).getPageContent());
         
-        Settings settings = this.getSystemManager().getSettings();
-        Optional<SettingItem> menuItem = dataHelper.searchSettingMenuItemBySimplePage(settings, (SimplePage)simplePage);
+      Settings settings = this.getSystemManager().getSettings();
+      Optional<SettingItem> menuItem = dataHelper.searchSettingMenuItemBySimplePage(settings, (SimplePage)page);
         
-        if(menuItem.isPresent()) {
-          ((CheckBox)view.getPane().lookup("#isShow")).setSelected(true);
-          ((TextField)view.getPane().lookup("#showInput")).setText(menuItem.get().getName());
-          view.getPane().lookup("#showInput").setVisible(true);
-        }
-        else {
-          ((CheckBox)view.getPane().lookup("#isShow")).setSelected(false);
-          ((TextField)view.getPane().lookup("#showInput")).setText("");
-          view.getPane().lookup("#showInput").setVisible(false);
-        }
-        
-        if(event.isSecondaryButtonDown() && !simplePage.getName().contains("index")) {
-          currentRightMenu = ((EditView)view).getRightButtonMenu(2);
-          currentRightMenu.getItems().get(0).setOnAction(this::deleteExistingPageEvent);
-          currentRightMenu.show( view.getPane(), event.getScreenX(), event.getScreenY());
-        }
+      if(menuItem.isPresent()) {
+        checkBox.setSelected(true);
+        menuNameField.setText(menuItem.get().getName());
+        menuNameField.setVisible(true);
       }
       else {
-        if(event.isSecondaryButtonDown()&& !simplePage.getName().contains("default")) {
-          currentRightMenu = ((EditView)view).getRightButtonMenu(1);
-          currentRightMenu.getItems().get(0).setOnAction(this::addNewPageEvent);
-          currentRightMenu.show( view.getPane(), event.getScreenX(), event.getScreenY());;
-        }
-        
-        view.getPane().lookup("#center-edit").setVisible(false);
-        
+        checkBox.setSelected(false);
+        menuNameField.setText("");
+        menuNameField.setVisible(false);
       }
+        
+      if(event.isSecondaryButtonDown() && !page.getName().contains("index")) {
+        currentRightMenu = ((EditView)view).getRightButtonMenu(RIGHTMENU.delete);
+        currentRightMenu.getItems().get(0).setOnAction(this::deleteExistingPageEvent);
+        currentRightMenu.show( view.getPane(), event.getScreenX(), event.getScreenY());
+      }
+    }
+    else {
+      if(event.isSecondaryButtonDown()&& !page.getName().contains("default")) {
+        currentRightMenu = ((EditView)view).getRightButtonMenu(RIGHTMENU.add);
+        currentRightMenu.getItems().get(0).setOnAction(this::addNewPageEvent);
+        currentRightMenu.show( view.getPane(), event.getScreenX(), event.getScreenY());;
+      }
+        
+      centerPane.setVisible(false);
     }
   }
   
@@ -190,22 +195,13 @@ public class EditController extends Controller{
     if(!result.isPresent()) {
       return;
     }
-    TreeView<?> targetTreeView = (TreeView<?>)view.getPane().lookup("#tree");
-    TreeItem<?> targetTreeItem = targetTreeView.getSelectionModel().getSelectedItem();
-    if(targetTreeItem.getValue() instanceof Page) {
-      SetPage page = (SetPage)targetTreeItem.getValue();
-      ((EditModel)model).addNewSimplePage(page, result.get());
-    } 
+    SetPage page = (SetPage)selectedPage.getValue();
+    ((EditModel)model).addNewSimplePage(page, result.get());
   }
   
-  // Type : SetPage class(1) and SimplePage class(2).
   private void deleteExistingPageEvent(ActionEvent event) {
-    TreeView<?> targetTreeView = (TreeView<?>)view.getPane().lookup("#tree");
-    TreeItem<?> targetTreeItem = targetTreeView.getSelectionModel().getSelectedItem();
-    if(targetTreeItem.getValue() instanceof Page) {
-      Page page = (Page)targetTreeItem.getValue();
-      ((EditModel)model).deleteExistingPage(page);
-    }
+    Page page = (Page)selectedPage.getValue();
+    ((EditModel)model).deleteExistingPage(page);
   }
   
   private void uploadfile(MouseEvent event) {

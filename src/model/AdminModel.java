@@ -2,58 +2,50 @@ package model;
 
 import java.io.File;
 import java.io.IOException;
-import controller.Controller;
-import controller.AdminController;
+import view.AdminView;
 import model.component.Templatetor;
 import model.utility.XmlHelper;
+import system.Statement;
 import system.SystemSettings;
 import system.data.CSSXMLsettings;
 import system.data.Settings;
 
-public class AdminModel implements Model {
+public class AdminModel extends Model {
 
-  Controller controller;
-  XmlHelper xmlHelper;
+  private XmlHelper xmlHelper;
+  private CSSXMLsettings cssSettings;
+  private Settings settings;
   
   @Override
   public void init() {
     xmlHelper = new XmlHelper();
-    Settings settings = xmlHelper.retrieveSettingFromXML();
-    controller.getSystemManager().setSettings(settings);
-    generatePreviewPage(settings.getLayout());
+    settings = xmlHelper.retrieveSettingFromXML();
+    dataCenter.setSettings(settings);
+    view.updateStatement(AdminView.UPDATE_SETTINGS, Statement.success(settings));
+    
+    generateCssSetting();
+    generatePreviewPage();
   }
   
-  public void generatePreviewPage(String layoutName){
-    // ***The path should be modified.
-    File file = new File("layout/CssXML/" + layoutName + ".xml"); 
-    
-    try{
-      CSSXMLsettings cssSetting;
-      if(!file.exists()){
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.initDefaultLayout();
-        cssSetting = systemSettings.getDefaultLayout(layoutName);
-      }
-      else{
-        XmlHelper xmlHelper = new XmlHelper();
-        cssSetting = xmlHelper.retrieveCSSSettingFromXML(layoutName);
-      }
-      controller.getSystemManager().setCSSSettings(cssSetting);
-      String previewPagePath = generateTempCssFile();
-      ((AdminController)controller).reloadPreviewPage(previewPagePath);
-    }
-    catch(Exception e){
-      e.printStackTrace();
-    }
+  private void generateCssSetting(){
+    cssSettings = getCssSettings();
+    dataCenter.setCSSSettings(cssSettings);
+    view.updateStatement(AdminView.UPDATE_CSSSETTINGS, Statement.success(cssSettings));
   }
-
-  @Override
-  public void setController(Controller controller) {
-    this.controller = controller;
+  
+  public void changeLayout(){
+    generateCssSetting();
+    generatePreviewPage();
+  }
+  
+  public void changeLayoutColor(){
+    String layoutName = settings.getLayout();
+    String tempPath = "layout/preview/" + layoutName + ".css";
+    generateCssFile(tempPath);
+    view.updateStatement(AdminView.UPDATE_RELOADPAGE, Statement.success(null));
   }
   
   public boolean modifySettingsField(String title, String subTitle, String localPath, String serverPath, String layout) {
-    Settings currentSettings = controller.getSystemManager().getSettings();
     if(title.trim().isEmpty()) {
       return false;
     }
@@ -67,68 +59,88 @@ public class AdminModel implements Model {
       return false;
     }
     else {
-      currentSettings.setTitle(title);
-      currentSettings.setSubTitle(subTitle);
-      currentSettings.setLocalPath(localPath);
-      currentSettings.setPublish(serverPath);
-      currentSettings.setLayout(layout);  
+      settings.setTitle(title);
+      settings.setSubTitle(subTitle);
+      settings.setLocalPath(localPath);
+      settings.setPublish(serverPath);
+      settings.setLayout(layout);  
     }
     XmlHelper xmlHelper = new XmlHelper();
-    xmlHelper.writeSettingToXML(currentSettings);
+    xmlHelper.writeSettingToXML(settings);
     return true;
   }
   
-  public void modifyCssSetting(CSSXMLsettings cssSetting){
-    Settings currentSettings = controller.getSystemManager().getSettings();
-    XmlHelper xmlHelper = new XmlHelper();
-    xmlHelper.writeSettingToXML(cssSetting);
+  public void modifyCssSetting(){
+    xmlHelper.writeSettingToXML(cssSettings);
+    String tempPath = settings.getLocalPath() + "res/" + cssSettings.getName() + ".css";
+    generateCssFile(tempPath);
+  }
     
-    String templatePath = "layout/CssTemplate/" + cssSetting.getName() + ".css";
-    String tempPath = currentSettings.getLocalPath() + "res/" + cssSetting.getName() + ".css";
-    
+  public void generatePreviewPage(){
+    String layoutName = settings.getLayout();
+    String tempPath = "layout/preview/" + layoutName + ".css";
+    File cssFile = generateCssFile(tempPath);
     try{
-      Templatetor template = new Templatetor(templatePath, tempPath);
-      template.setMarkNotation('<', '>');
-      template.addKeyAndContent("bk", cssSetting.getHeaderColor());
-      template.addKeyAndContent("title", cssSetting.getTitleColor());
-      template.addKeyAndContent("subtitle", cssSetting.getSubTitleColor());
-      template.addKeyAndContent("main", cssSetting.getMainColor());
-      template.addKeyAndContent("content", cssSetting.getContentColor());
-      template.addKeyAndContent("frame", cssSetting.getFrameColor());
-      template.run();
-    } 
+      
+      String pageTemplatePath = "template/" + layoutName + ".html";
+      String pageTempPath = "layout/preview/" + layoutName + ".html";
+    
+      Templatetor page = new Templatetor(pageTemplatePath, pageTempPath);
+      page.addKeyAndContent("css", "\"file://" + cssFile.getAbsolutePath() + "\"");
+      page.addKeyAndContent("title", "layout title example");
+      page.addKeyAndContent("subTitle", "layout subtitle example");
+      page.addKeyAndContent("menu", "<li class = \"nav-item\"><a class = \"nav-item-link\">menu</a></li>");
+      page.addKeyAndContent("content", "this is layout page preview.");
+      File previewPageFile = page.run();
+      view.updateStatement(AdminView.UPDATE_LOADPAGE, Statement.success(previewPageFile.getAbsolutePath()));
+    }
     catch(IOException e){
       e.printStackTrace();
     }
   }
   
-  public String generateTempCssFile() throws IOException{
-    CSSXMLsettings cssSetting = controller.getSystemManager().getCSSSettings();
-    String templatePath = "layout/CssTemplate/" + cssSetting.getName() + ".css";
-    String tempPath = "layout/preview/" + cssSetting.getName() + ".css";
+  private File generateCssFile(String targetPath){
+    String templatePath = "layout/CssTemplate/" + settings.getLayout() + ".css";
+    File cssFile;
+    try{
+      Templatetor template = new Templatetor(templatePath, targetPath);
+      template.setMarkNotation('<', '>');
+      template.addKeyAndContent("bk", cssSettings.getHeaderColor());
+      template.addKeyAndContent("title", cssSettings.getTitleColor());
+      template.addKeyAndContent("subtitle", cssSettings.getSubTitleColor());
+      template.addKeyAndContent("main", cssSettings.getMainColor());
+      template.addKeyAndContent("content", cssSettings.getContentColor());
+      template.addKeyAndContent("frame", cssSettings.getFrameColor());
+      cssFile = template.run();
+      
+      return cssFile;
+    } 
+    catch(IOException e){
+      e.printStackTrace();
+    }
+    return null;
+  }
+  
+  private CSSXMLsettings getCssSettings(){
+    CSSXMLsettings cssSetting = null;
+    String layoutName = settings.getLayout();
+    File file = new File("layout/CssXML/" + layoutName + ".xml"); 
+    try{
+      if(!file.exists()){
+        SystemSettings systemSettings = new SystemSettings();
+        systemSettings.initDefaultLayout();
+        cssSetting = systemSettings.getDefaultLayout(layoutName);
+      }
+      else{
+        XmlHelper xmlHelper = new XmlHelper();
+        cssSetting = xmlHelper.retrieveCSSSettingFromXML(layoutName);
+      }
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
     
-    Templatetor template = new Templatetor(templatePath, tempPath);
-    template.setMarkNotation('<', '>');
-    template.addKeyAndContent("bk", cssSetting.getHeaderColor());
-    template.addKeyAndContent("title", cssSetting.getTitleColor());
-    template.addKeyAndContent("subtitle", cssSetting.getSubTitleColor());
-    template.addKeyAndContent("main", cssSetting.getMainColor());
-    template.addKeyAndContent("content", cssSetting.getContentColor());
-    template.addKeyAndContent("frame", cssSetting.getFrameColor());
-    File tempFile = template.run();
-    
-    String pageTemplatePath = "template/" + cssSetting.getName() + ".html";
-    String pageTempPath = "layout/preview/" + cssSetting.getName() + ".html";
-    
-    Templatetor page = new Templatetor(pageTemplatePath, pageTempPath);
-    page.addKeyAndContent("css", "\"file://" + tempFile.getAbsolutePath() + "\"");
-    page.addKeyAndContent("title", "layout title example");
-    page.addKeyAndContent("subTitle", "layout subtitle example");
-    page.addKeyAndContent("menu", "<li class = \"nav-item\"><a class = \"nav-item-link\">menu</a></li>");
-    page.addKeyAndContent("content", "this is layout page preview.");
-    File tempPageFile = page.run();
-    
-    return tempPageFile.getAbsolutePath();
+    return cssSetting;
   }
   
 }

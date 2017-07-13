@@ -1,19 +1,16 @@
 package model;
 
-import controller.Controller;
+import system.Statement;
+import view.PreviewView;
 
-public class PreviewModel implements Model {
+public class PreviewModel extends Model {
 
   @Override
   public void init() {
-    // TODO Auto-generated method stub
-
+    String preViewPagePath = dataCenter.getData().getCurrentPageLocalPath();
+    view.updateStatement(PreviewView.UPDATE_LOADPAGE, Statement.success(preViewPagePath));
   }
 
-  @Override
-  public void setController(Controller controller) {
-    // TODO Auto-generated method stub
-
-  }
+  
 
 }

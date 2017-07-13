@@ -4,18 +4,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import controller.Controller;
 import model.utility.PathHelper;
 import model.utility.XmlHelper;
 import model.component.Generator;
 import model.component.Upload;
 import model.utility.DataHelper;
+import system.Statement;
 import system.SystemSettings;
 import system.data.Data;
 import system.data.Page;
@@ -23,40 +22,48 @@ import system.data.SetPage;
 import system.data.SettingItem;
 import system.data.Settings;
 import system.data.SimplePage;
+import view.EditView;
 
-public class EditModel implements Model {
+public class EditModel extends Model {
   
-  private Controller controller;
-
+  private DataHelper dataHelper;
+  private XmlHelper xmlHelper;
+  private PathHelper pathHelper;
+  private Settings settings;
+  private Data data;
+  
+  public EditModel(){
+    dataHelper = new DataHelper();
+    dataHelper = new DataHelper();
+    xmlHelper = new XmlHelper();
+    pathHelper = new PathHelper();
+  }
+  
   @Override
   public void init() {
-    DataHelper dataHelper = new DataHelper();
-    XmlHelper xmlHelper = new XmlHelper();
-    PathHelper pathHelper = new PathHelper();
     
-    Settings settings = xmlHelper.retrieveSettingFromXML();
+    settings = xmlHelper.retrieveSettingFromXML();
+    
+    /* 
+     * Initialize the local path when user firstly start this application.
+     * */
     if(!xmlHelper.isLocalPathExistingInXML()) {
       String defaultDirectory = pathHelper.createDefaultDirectoyInLocalPath();
       settings.setLocalPath(defaultDirectory);
       xmlHelper.writeSettingToXML(settings);
     }
     
-    Data data = dataHelper.retrieveDataFromFiles(settings.getLocalPath());
-    controller.getSystemManager().setData(data);
+    data = dataHelper.retrieveDataFromFiles(settings.getLocalPath());
+    dataCenter.setData(data);
+    dataCenter.setSettings(settings);
     
-    controller.getSystemManager().setSettings(settings);
+    view.updateStatement(EditView.UPDATE_LIST, Statement.success(data));
+    view.updateStatement(EditView.UPDATE_MENUITEM, Statement.success(settings));
   }
 
-  @Override
-  public void setController(Controller controller) {
-    this.controller = controller;
-  }
-  
   public boolean savePageContent(Object treeItem, String content, String customizedName) {
+    settings = dataCenter.getSettings();
     Generator generator = new Generator();
-    Settings settings = controller.getSystemManager().getSettings();
-    Data data = controller.getSystemManager().getData();
-    PathHelper pathHelper = new PathHelper();
     String pathUrl = settings.getLocalPath() + SystemSettings.editDirectory + "/";
     
     Page page = (Page)treeItem;
@@ -79,7 +86,7 @@ public class EditModel implements Model {
           }
         }
         generator.generateFinalPage( (SimplePage)page, data, settings, 0);
-        controller.getSystemManager().notifyAllController();
+        view.updateStatement(EditView.UPDATE_MENUITEM, Statement.success(settings));
 
       }catch(Exception e) {
         e.printStackTrace();
@@ -91,10 +98,8 @@ public class EditModel implements Model {
   }
   
   public void generateAllPage() {
-    Settings website = controller.getSystemManager().getSettings();
-    Data data = controller.getSystemManager().getData();
     Generator generator = new Generator();
-    List<SetPage> pageList = controller.getSystemManager().getData().getList();
+    List<SetPage> pageList = data.getList();
     List<SetPage> tempData = new LinkedList<SetPage>();
     Upload upload = new Upload();
     
@@ -111,7 +116,7 @@ public class EditModel implements Model {
         }
       
         for(SimplePage simplePage : setPage.getPageList()) {
-          generator.generateFinalPage( simplePage, data, website, 1);
+          generator.generateFinalPage( simplePage, data, settings, 1);
         }
       }
       
@@ -125,8 +130,13 @@ public class EditModel implements Model {
     if(!page.toString().endsWith(".html")) {
       return;
     }
-    List<SetPage> pageList = controller.getSystemManager().getData().getList();
+    SimplePage targetSimplePage = (SimplePage)page;
+    
+    List<SetPage> pageList = data.getList();
     List<SetPage> tempData = new LinkedList<SetPage>();
+    
+    deleteExistingPageFile(targetSimplePage);
+    removeMenuItemToSettingXML(targetSimplePage);
     
     while(!pageList.isEmpty()) {
       
@@ -139,9 +149,7 @@ public class EditModel implements Model {
         for(SimplePage simplePage : setPage.getPageList()) {
           if(simplePage == page){
             setPage.getPageList().remove(simplePage);
-            deleteExistingPageFile(simplePage.getName());
-            removeMenuItemToSettingXML(simplePage);
-            controller.getSystemManager().notifyAllController();
+            view.updateStatement(EditView.UPDATE_LIST, Statement.success(data));
             return;
           }
         }
@@ -151,33 +159,18 @@ public class EditModel implements Model {
     }
   }
   
-  private void deleteExistingPageFile(String pageName) {
-    String localFullPath = controller.getSystemManager().getSettings().getLocalPath();
-    File file = new File(localFullPath + SystemSettings.editDirectory + "/");
-    List<File> fileList = Arrays.asList(file.listFiles());
-    List<File> tempFile = new LinkedList<File>();
-    
-    while(!fileList.isEmpty()) {
-      for(File eachFile : fileList){
-      
-        if(eachFile.isDirectory() && eachFile.getName().matches("[a-zA-Z0-9\\-]*")){
-          tempFile.addAll(Arrays.asList(eachFile.listFiles()));
-        }
-      
-        if(eachFile.getName().equals(pageName)) {
-          eachFile.delete();
-          return;
-        } 
-      }
-      fileList = tempFile.stream().collect(Collectors.toList());
-      tempFile.clear();
+  private void deleteExistingPageFile(SimplePage page) {
+    String localFullPath = dataCenter.getSettings().getLocalPath() + SystemSettings.editDirectory + "/";
+    String filePath = pathHelper.getPathFromSimplePage(page, settings, localFullPath);
+    File file = new File(filePath);
+    if(file.exists()){
+      file.delete();
     }
   }
   
   public void addNewSimplePage(SetPage setPage, String fileName) {
-    Data data = controller.getSystemManager().getData();
     String fullFileName = fileName.trim() + ".html";
-    String defaultEditPath = controller.getSystemManager().getSettings().getLocalPath() + SystemSettings.editDirectory +"/";
+    String defaultEditPath = dataCenter.getSettings().getLocalPath() + SystemSettings.editDirectory +"/";
     Deque<SetPage> stack = new LinkedList<SetPage>();
     
     if(data.isExistingPage(2, fullFileName)) {
@@ -199,42 +192,29 @@ public class EditModel implements Model {
     try{
       File newFile = new File(defaultEditPath + fullFileName);
       newFile.createNewFile(); 
-      controller.getSystemManager().notifyAllController();
+      view.updateStatement(EditView.UPDATE_LIST, Statement.success(data));
     } 
     catch(IOException e) {
       e.printStackTrace();
     }
   }
   
-  public void uploadFinalPage(){
-    Upload upload = new Upload();
-    upload.connect();
-    upload.uploadFinalPageFile();
-    upload.disconnect();
-  }
-  
   private void addMenuItemToSettingXML(String itemName, SimplePage simplePage) {
-    PathHelper pathHelper = new PathHelper();
     String publishedUrl = "./";
-    XmlHelper xmlHelper = new XmlHelper();
     SettingItem newMenuItem = new SettingItem();
-    publishedUrl = pathHelper.getPathFromSimplePage(simplePage, controller.getSystemManager().getSettings(), publishedUrl);
+    publishedUrl = pathHelper.getPathFromSimplePage(simplePage, settings, publishedUrl);
     newMenuItem.setName(itemName);
     newMenuItem.setTargetURL(publishedUrl);
-    controller.getSystemManager().getSettings().addItemToMenu(newMenuItem);
-    xmlHelper.writeSettingToXML(controller.getSystemManager().getSettings());
+    settings.addItemToMenu(newMenuItem);
+    xmlHelper.writeSettingToXML(settings);
   }
   
   private void removeMenuItemToSettingXML(SimplePage simplePage) {
-    XmlHelper xmlHelper = new XmlHelper();
-    DataHelper datahelper = new DataHelper();
-    Settings currentSettings = controller.getSystemManager().getSettings();
-    
-    Optional<SettingItem> removeSettingItem = datahelper.searchSettingMenuItemBySimplePage(currentSettings, simplePage);
+    Optional<SettingItem> removeSettingItem = dataHelper.searchSettingMenuItemBySimplePage(settings, simplePage);
     
     if(removeSettingItem.isPresent()) {
-      controller.getSystemManager().getSettings().getMenu().remove(removeSettingItem.get());
-      xmlHelper.writeSettingToXML(controller.getSystemManager().getSettings());
+      settings.getMenu().remove(removeSettingItem.get());
+      xmlHelper.writeSettingToXML(settings);
     }
   }
   
@@ -275,7 +255,7 @@ public class EditModel implements Model {
         String fileName = splitFile[splitFile.length -1];
         
         File originalFile = new File(filePah);
-        String imgUploadPath = controller.getSystemManager().getSettings().getLocalPath() + SystemSettings.imgDirectory + "/";
+        String imgUploadPath = settings.getLocalPath() + SystemSettings.imgDirectory + "/";
         File newFile = new File(imgUploadPath + fileName);
         
         try{

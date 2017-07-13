@@ -95,10 +95,4 @@ public class SystemManager {
     }
   }
   
-  public void notifyAllController() {
-    for(Controller controller: controllerList) {
-      controller.notify(true);
-    }
-  }
-  
 }
