@@ -93,7 +93,7 @@ public class EditController extends Controller{
   
   private void openSettingEvent(MouseEvent event){
     AdminController adminController = new AdminController();
-    systemManager.register(adminController);
+    adminController.setDataCenter(dataCenter);
     adminController.init();
   }
   
@@ -121,14 +121,14 @@ public class EditController extends Controller{
     }
         
     PreviewController preview = new PreviewController();
-    systemManager.register(preview);
+    preview.setDataCenter(dataCenter);
     preview.init();
   } 
   
   private void insertMediaEvent(MouseEvent event) {
     ExtensionFilter filter = new ExtensionFilter("Image Files", "*.png", "*.jpg");
     FileChooser fileChooser = viewFactory.createFileChooser("Select an image file", filter);
-    File selectedFile = fileChooser.showOpenDialog(this.getSystemManager().getWindow());
+    File selectedFile = fileChooser.showOpenDialog(dataCenter.getWindow());
     if(selectedFile != null){
       String clipedContent = ((EditModel)model).clipHTMLContent(editor.getHtmlText());
       StringBuilder stringbuilder = new StringBuilder(clipedContent);
@@ -158,7 +158,7 @@ public class EditController extends Controller{
       centerPane.setVisible(true);
       editor.setHtmlText(((SimplePage)page).getPageContent());
         
-      Settings settings = this.getSystemManager().getSettings();
+      Settings settings = dataCenter.getSettings();
       Optional<SettingItem> menuItem = dataHelper.searchSettingMenuItemBySimplePage(settings, (SimplePage)page);
         
       if(menuItem.isPresent()) {
@@ -206,7 +206,7 @@ public class EditController extends Controller{
   
   private void uploadfile(MouseEvent event) {
     UploadController uploadController = new UploadController();
-    systemManager.register(uploadController);
+    uploadController.setDataCenter(dataCenter);
     uploadController.init();
   }
   

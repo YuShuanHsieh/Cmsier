@@ -2,31 +2,37 @@ package controller;
 import view.View;
 import javafx.scene.layout.Pane;
 import model.Model;
-import system.SystemManager;
+import system.DataCenter;
 
 public abstract class Controller {
 
   protected View view;
   protected Model model;
-  protected SystemManager systemManager;
+  protected DataCenter dataCenter;
   
+  /*
+   * Allocate view and data center to model.
+   */
   public void attached(View view, Model model) {
     model.setView(view);
-    model.setDataCenter(systemManager);
+    model.setDataCenter(dataCenter);
   }
   
-  public void setSystemManager(SystemManager systemManager) {
-    this.systemManager = systemManager;
+  public void setDataCenter(DataCenter dataCenter) {
+    this.dataCenter = dataCenter;
   }
   
-  public SystemManager getSystemManager() {
-    return this.systemManager;
+  public DataCenter getDataCenter() {
+    return this.dataCenter;
   }
 
   public void init(){
     
   }
   
+  /*
+   * add eventHandler to selected view components.
+   */
   public void setEvent(){
     
   }

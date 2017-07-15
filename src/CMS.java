@@ -5,25 +5,23 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import system.SystemManager;
+import system.DataCenter;
 
 public class CMS extends Application {
 	
   @Override
 	public void start(Stage primaryStage) throws Exception {
-	  SystemManager systemManager = new SystemManager(primaryStage);
+	  DataCenter dataCenter = new DataCenter(primaryStage);
 
 	  Controller controller = new EditController();
-	  systemManager.register(controller);
-	  systemManager.addPane(controller);
+	  controller.setDataCenter(dataCenter);
 	  controller.init();
 	  
-		Scene scene = new Scene(systemManager.getPane(), 1000, 600);
+		Scene scene = new Scene(controller.getView(), 1000, 600);
 		primaryStage.setTitle("Content Management System For Non-CS users");
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		primaryStage.getIcons().add(new Image(SystemManager.class.getResourceAsStream("icon.png")));
-		primaryStage.getIcons().add(new Image(SystemManager.class.getResourceAsStream("icon.icns")));
+		primaryStage.getIcons().add(new Image(DataCenter.class.getResourceAsStream("icon.png")));
 	}
 	
 	public static void main(String[] args) {

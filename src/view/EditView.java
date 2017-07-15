@@ -27,6 +27,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import model.utility.DataHelper;
+import system.DataCenter;
 import system.Statement;
 import system.data.Data;
 import system.data.Page;
@@ -60,6 +61,9 @@ public class EditView implements View{
 	public EditView() {
 	  dataHelper = new DataHelper();
 	  view = new BorderPane();
+	  
+	  String css = DataCenter.class.getResource("layout.css").toExternalForm(); 
+	  view.getStylesheets().add(css);
 
 	  editArea = new HTMLEditor();
 	  editArea.setId("edit");
@@ -97,6 +101,7 @@ public class EditView implements View{
 	  ToolBar node = (ToolBar)editArea.lookup(".top-toolbar");
 	  insertButton = new Button("Insert Image");
 	  node.getItems().add(insertButton);
+	  node.getStylesheets().add(DataCenter.class.getResource("layout.css").toExternalForm());
 
 	  VBox vbox = new VBox();
     vbox.setId("box");

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Settings>
+    <Menu>
+        <MenuItem>
+            <name>Home</name>
+            <targetURL>./index.html</targetURL>
+        </MenuItem>
+        <MenuItem>
+            <name>AboutMe</name>
+            <targetURL>./page/text.html</targetURL>
+        </MenuItem>
+    </Menu>
+    <layout>rose</layout>
+    <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
+    <publish>https://cherriesweb.000webhostapp.com/</publish>
+    <subTitle>My websites</subTitle>
+    <title>My First Application</title>
+</Settings>

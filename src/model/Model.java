@@ -1,17 +1,16 @@
 package model;
-import system.SystemManager;
+import system.DataCenter;
 import view.View;
 
 public abstract class Model {
  
-  protected SystemManager dataCenter;
+  protected DataCenter dataCenter;
   protected View view;
   
   public void init(){
-  
   }
   
-  public void setDataCenter(SystemManager dataCenter){
+  public void setDataCenter(DataCenter dataCenter){
     this.dataCenter = dataCenter;
   }
   

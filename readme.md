@@ -1,9 +1,12 @@
-# Problems should be solved
-1. restrict the number of menu
-2. The process of upload files
-
-# Unfinished functions
-1. add more template html. (working now!)
-2. A list page and related XML file.
-3. Download files from web server.
-4. Add instructions.
+# Cmsier
+## A content management system for Non-CS users.
+- Developer: Yu-Shuan
+- Programming language: Java
+- GUI library: JavaFx
+- IDE: Eclipes
+- Additional libraries:
+  - [Apache Commons Net](https://commons.apache.org/proper/commons-net/)
+  - [Apache Commons IO](https://commons.apache.org/proper/commons-io/)
+- Inspiration: Static site generator([Jekyll](https://jekyllrb.com/)
+# System Architecture
+This project is inspired by static site generator.

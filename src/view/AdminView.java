@@ -6,6 +6,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -17,6 +19,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import system.DataCenter;
 import system.Statement;
 import system.data.CSSXMLsettings;
 import javafx.concurrent.Worker.State;
@@ -38,6 +41,7 @@ public class AdminView extends Dialog<String> implements View {
   private ColorPicker mainColorPick;
   private ColorPicker contentColorPick;
   private ColorPicker frameColorPick;
+  private Image settingIcon;
   
   public static final String CSSCOLOR_HEADER = "headerColor";
   public static final String CSSCOLOR_TITLE = "titleColor";
@@ -59,7 +63,11 @@ public class AdminView extends Dialog<String> implements View {
 
   @Override
   public void init() { 
+    settingIcon = new Image(View.class.getResourceAsStream("img/gear.png"));
     this.getDialogPane().setStyle("-fx-font-size: 12px;");
+    String css = DataCenter.class.getResource("layout.css").toExternalForm(); 
+    this.getDialogPane().getStylesheets().add(css);
+    
     
     GridPane grid = new GridPane();
     TabPane tabPane = new TabPane();
@@ -76,20 +84,24 @@ public class AdminView extends Dialog<String> implements View {
     Label titleLabel = new Label("Title");
     titleInput = new TextField();
     titleInput.setPrefWidth(350);
+    titleLabel.setGraphic(new ImageView(settingIcon));
 
     Label subTitleLabel = new Label("Sub Title");
     subTitleInput = new TextField();
     subTitleInput.setPrefWidth(350);
+    subTitleLabel.setGraphic(new ImageView(settingIcon));
     
     Label localPathLabel = new Label("Local Path");
     localPath = new TextField();
     localPath.setPrefWidth(350);
+    localPathLabel.setGraphic(new ImageView(settingIcon));
     
     localPathBrowseButton = new Button("Browse");
     
     Label serverPathLabel = new Label("Server Path");
     serverPath = new TextField();
     serverPath.setPrefWidth(350);
+    serverPathLabel.setGraphic(new ImageView(settingIcon));
     
     grid.add( titleLabel, 0, 0);
     grid.add( titleInput, 1, 0, 2, 1);

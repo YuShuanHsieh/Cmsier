@@ -47,7 +47,7 @@ public class AdminController extends Controller {
     ChoiceBox<String> choiceBox = castView.getLayoutBox();
     choiceBox.setOnAction(event -> {
       String selectedLayout = choiceBox.getSelectionModel().getSelectedItem();
-      systemManager.getSettings().setLayout(selectedLayout);
+      dataCenter.getSettings().setLayout(selectedLayout);
       castModel.changeLayout();
     });
     
@@ -83,22 +83,22 @@ public class AdminController extends Controller {
     ColorPicker node = (ColorPicker)event.getSource();
     String colorValue = "#" + node.getValue().toString().substring(2, 8);
     if(node.getId().equals(AdminView.CSSCOLOR_HEADER)){
-      systemManager.getCSSSettings().setHeaderColor(colorValue);
+      dataCenter.getCSSSettings().setHeaderColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_TITLE)) {
-      systemManager.getCSSSettings().setTitleColor(colorValue);
+      dataCenter.getCSSSettings().setTitleColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_SUBTITLE)) {
-      systemManager.getCSSSettings().setSubTitleColor(colorValue);
+      dataCenter.getCSSSettings().setSubTitleColor(colorValue);
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_MAIN)) {
-      systemManager.getCSSSettings().setMainColor(colorValue);;
+      dataCenter.getCSSSettings().setMainColor(colorValue);;
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_CONTENT)) {
-      systemManager.getCSSSettings().setContentColor(colorValue);;
+      dataCenter.getCSSSettings().setContentColor(colorValue);;
     }
     else if(node.getId().equals(AdminView.CSSCOLOR_FRAME)) {
-      systemManager.getCSSSettings().setFrameColor(colorValue);;
+      dataCenter.getCSSSettings().setFrameColor(colorValue);;
     }
     ((AdminModel)model).changeLayoutColor();
   }
@@ -106,7 +106,7 @@ public class AdminController extends Controller {
   private void browseLocalPathEvent(MouseEvent event) {
     AdminView castView = (AdminView)view;
     DirectoryChooser directoryChooser = new DirectoryChooser();
-    File selectedFile = directoryChooser.showDialog(this.getSystemManager().getWindow());
+    File selectedFile = directoryChooser.showDialog(dataCenter.getWindow());
     if(selectedFile != null && selectedFile.isDirectory()) {
       String selectedLocalPath = selectedFile.getAbsolutePath();
       castView.getField(Filed.localPath).setText(selectedLocalPath + "/");

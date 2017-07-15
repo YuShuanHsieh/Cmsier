@@ -10,5 +10,8 @@ public interface View{
   
   public void showPane();
   
+  /*
+   * It allows model to deliver update request.
+   */
   public <T> void updateStatement(String instruction,Statement<T> statement);
 }
