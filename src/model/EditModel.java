@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import model.utility.PathHelper;
 import model.utility.XmlHelper;
-import model.component.Generator;
 import model.component.Upload;
 import model.utility.DataHelper;
 import system.Statement;
@@ -62,8 +61,8 @@ public class EditModel extends Model {
   }
 
   public boolean savePageContent(Object treeItem, String content, String customizedName) {
-    settings = dataCenter.getSettings();
-    Generator generator = new Generator();
+    settings = dataCenter.getSettings();   
+    //Generator generator = new Generator();
     String pathUrl = settings.getLocalPath() + SystemSettings.editDirectory + "/";
     
     Page page = (Page)treeItem;
@@ -85,7 +84,8 @@ public class EditModel extends Model {
             removeMenuItemToSettingXML((SimplePage)page);
           }
         }
-        generator.generateFinalPage( (SimplePage)page, data, settings, 0);
+        
+        //generator.generateFinalPage( (SimplePage)page, data, settings, 0);
         view.updateStatement(EditView.UPDATE_MENUITEM, Statement.success(settings));
 
       }catch(Exception e) {
@@ -95,35 +95,6 @@ public class EditModel extends Model {
     }
     
     return true;
-  }
-  
-  public void generateAllPage() {
-    Generator generator = new Generator();
-    List<SetPage> pageList = data.getList();
-    List<SetPage> tempData = new LinkedList<SetPage>();
-    Upload upload = new Upload();
-    
-    /* Delete current final page */
-    upload.deleteCurrentFinalPage();
-    
-    
-    while(!pageList.isEmpty()) {
-    
-      for(SetPage setPage : pageList) {
-      
-        if(setPage.getChild() != null) {
-          tempData.add(setPage.getChild());
-        }
-      
-        for(SimplePage simplePage : setPage.getPageList()) {
-          generator.generateFinalPage( simplePage, data, settings, 1);
-        }
-      }
-      
-      pageList = tempData.stream().collect(Collectors.toList());
-      tempData.clear();
-    }
-    
   }
   
   public void deleteExistingPage(Page page) {

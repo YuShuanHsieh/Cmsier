@@ -1,7 +1,5 @@
 package model;
 import controller.UploadController;
-import model.component.Generator;
-import model.utility.PathHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,12 +10,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.net.ftp.FTPClient;
 import system.Statement;
 import system.SystemSettings;
-import view.View;
 
 public class UploadModel extends Model {
 
   private FTPClient ftpClient;
-  private View view;
    
   public UploadModel() {
     ftpClient = new FTPClient();
@@ -25,17 +21,19 @@ public class UploadModel extends Model {
 
   public boolean connectToWebServer(String host, String account, String password) {
     try{
-      
+      view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Start to connect to server."));
       ftpClient.connect(host, 21);
       ftpClient.login(account, password);
       
       if(ftpClient.getReplyCode() == 530) {
-        view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("Connot connect to server."));
+        view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Connot connect to server."));
+        
       }
       else {
-        view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("Connect to Web server successfully."));
+        view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Connect to Web server successfully."));
         return true;
       }
+      
     } 
     catch(IOException e){
       e.printStackTrace();
@@ -43,31 +41,17 @@ public class UploadModel extends Model {
     return false;
   }
   
-  public boolean disconnectToWebServer() {
+  public void disconnectToWebServer() {
     try{
       ftpClient.logout();
       ftpClient.disconnect();
-      return true;
+      view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Close the connection."));
     }
     catch(IOException e){
       e.printStackTrace();
-      return false;
     }
   }
-  
-  public boolean generateFinalPage() {
-    view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("Start to generate Web pages."));
-    try{
-      Generator generator = new Generator();
-      PathHelper pathHelper = new PathHelper();
-      pathHelper.deleteFilesFromDirectory(dataCenter.getSettings().getLocalPath() + "web/");
-      generator.generateAllPage(dataCenter.getSettings(), dataCenter.getData());
-      return true;
-    }catch(Exception e) {
-      return false;
-    }
-  }
-  
+
   public boolean uploadFinalPageFile() {
     String localPath = dataCenter.getSettings().getLocalPath();
     List<String> directoryList = new LinkedList<String>();
@@ -90,7 +74,7 @@ public class UploadModel extends Model {
       e.printStackTrace();
       return false;
     }
-    view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("Start to upload Web pages to server."));
+    view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Start to upload Web pages to server."));
     while(true){
       for(String directoryName : directoryList){
         pathName = directoryName + "/";
@@ -114,7 +98,7 @@ public class UploadModel extends Model {
               if(ftpClient.cwd(ftpPath + publishPath) == 550){
                 ftpClient.makeDirectory(ftpPath + publishPath);
               }
-              System.out.println("path test : " + localPath + pathName + file.getName());
+              
               ftpClient.storeFile( ftpPath + publishPath + file.getName(), uploadfile);
             }
             catch(IOException e) {
@@ -131,7 +115,7 @@ public class UploadModel extends Model {
       directoryList = tempList.stream().collect(Collectors.toList());
       tempList.clear();
     }
-    view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("Upload Web pages to server successfully."));
+    view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Upload Web pages to server successfully."));
     return true;
   }
 }

@@ -1,20 +1,28 @@
 package controller;
 
-import model.PreviewModel;
+import model.GenerateModel;
 import view.PreviewView;
 
+/*
+ * @Author Yu-Shuan
+ * */
+
 public class PreviewController extends Controller {
+  
+  private GenerateModel generateModel;
 
   public PreviewController() {
     view = new PreviewView();
-    model = new PreviewModel();
   }
   
   @Override
   public void init(){
-    attached(view, model);
+    generateModel = new GenerateModel();
+    attached(view, generateModel);
+    
     view.init();
-    model.init();
+    generateModel.init();
+    generateModel.generatePreviewPage();
     
     PreviewView CastView = (PreviewView)view;
     CastView.setResultConverter(button -> {

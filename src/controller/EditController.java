@@ -3,6 +3,9 @@ package controller;
 import view.EditView;
 import view.EditView.RIGHTMENU;
 import model.EditModel;
+import model.GenerateModel;
+import model.GenerateModel.GENERATE;
+
 import java.io.File;
 import java.util.Optional;
 import controller.AdminController;
@@ -30,6 +33,9 @@ import controller.UploadController;
 
 public class EditController extends Controller{
   
+  private EditModel editModel;
+  private GenerateModel generateModel;
+  
   private ContextMenu currentRightMenu = null;
   private TreeItem<?> selectedPage;
   private TreeView<?> pageList;
@@ -44,16 +50,21 @@ public class EditController extends Controller{
 
   public EditController() {
     view = new EditView();
-    model = new EditModel();
     viewFactory = new ViewFactory();
+    
   }
   
   @Override
   public void init(){
-    attached(view, model);
+    editModel = new EditModel();
+    attached(view, editModel);
+    
+    generateModel = new GenerateModel();
+    attached(view, generateModel);
     
     view.init();
-    model.init();
+    editModel.init();
+    generateModel.init();
     
     pageList = (TreeView<?>)view.getPane().lookup("#tree");
     saveButton = (Button)view.getPane().lookup("#save");
@@ -101,7 +112,7 @@ public class EditController extends Controller{
     String menuItemName = "";
     String content = "";
    
-    if(selectedPage == null) {
+    if(selectedPage == null || !selectedPage.getValue().toString().endsWith(".html")) {
       viewFactory.createAlertWindow("Please select a page.");
       return;
     }
@@ -115,11 +126,11 @@ public class EditController extends Controller{
     }
     content = editor.getHtmlText();
     
-    if(!((EditModel)model).savePageContent(selectedPage.getValue(), content, menuItemName)) {
+    if(!editModel.savePageContent(selectedPage.getValue(), content, menuItemName)) {
       viewFactory.createAlertWindow("This page cannot be saved, please check the content or setting.");
       return;
     }
-        
+    generateModel.generateSinglePage(GENERATE.draft, (SimplePage)selectedPage.getValue());
     PreviewController preview = new PreviewController();
     preview.setDataCenter(dataCenter);
     preview.init();
@@ -130,7 +141,7 @@ public class EditController extends Controller{
     FileChooser fileChooser = viewFactory.createFileChooser("Select an image file", filter);
     File selectedFile = fileChooser.showOpenDialog(dataCenter.getWindow());
     if(selectedFile != null){
-      String clipedContent = ((EditModel)model).clipHTMLContent(editor.getHtmlText());
+      String clipedContent = editModel.clipHTMLContent(editor.getHtmlText());
       StringBuilder stringbuilder = new StringBuilder(clipedContent);
     
       stringbuilder.append("<img src=\"file://" + selectedFile.getPath() + "\">");
@@ -196,12 +207,12 @@ public class EditController extends Controller{
       return;
     }
     SetPage page = (SetPage)selectedPage.getValue();
-    ((EditModel)model).addNewSimplePage(page, result.get());
+    editModel.addNewSimplePage(page, result.get());
   }
   
   private void deleteExistingPageEvent(ActionEvent event) {
     Page page = (Page)selectedPage.getValue();
-    ((EditModel)model).deleteExistingPage(page);
+    editModel.deleteExistingPage(page);
   }
   
   private void uploadfile(MouseEvent event) {

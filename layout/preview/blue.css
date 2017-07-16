@@ -51,7 +51,7 @@ The default setting of CSS layout
 }
 
 .header{
-  background-color: #808080;
+  background-color: #333333;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
@@ -78,7 +78,7 @@ The default setting of CSS layout
 }
 
 .nav{
-  background-color: #808080;
+  background-color: #333333;
   height: 3em;
 }
 .nav > .nav-box {
@@ -108,7 +108,7 @@ The default setting of CSS layout
 
 .nav-item-link:hover {
   background-color: #F2F2F2;
-  color: #808080;
+  color: #333333;
 
 }
 

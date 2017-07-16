@@ -13,7 +13,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.control.TextArea;
 import system.Statement;
-
+/*
+ * @Author: Yu-Shuan
+ *  */
 public class UploadView extends Dialog<Void> implements View {
 
   Controller controller;
@@ -75,6 +77,7 @@ public class UploadView extends Dialog<Void> implements View {
    * @param statement a string sentence from controller that describes the progress of uploading.
    *  */
 
+  @Override
   public <T> void updateStatement(String instruction, Statement<T> statement){
     if(instruction.equals(UploadController.UPLOAD_PROCESS) && statement.getResult()){
       StringBuilder currentStatement = new StringBuilder(statementArea.getText()); 
