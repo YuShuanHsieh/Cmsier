@@ -2,8 +2,10 @@ package view;
 
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogEvent;
-import javafx.event.EventHandler;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
@@ -14,6 +16,7 @@ public class PreviewView extends Dialog<String> implements View {
 
   private final WebView webView;
   private final WebEngine webEngine;
+  private boolean isWebPageUpdate = false;
   public static final String UPDATE_LOADPAGE = "UPDATE_LOADPAGE";
   
   public PreviewView() {
@@ -28,12 +31,17 @@ public class PreviewView extends Dialog<String> implements View {
     this.getDialogPane().setContent(webView);
     this.getDialogPane().getButtonTypes().add(okayButton);
     
-    this.setOnShown(new EventHandler<DialogEvent>(){
-      @Override
-      public void handle(DialogEvent event) {
-        webEngine.reload();
-      }
-    });
+    webEngine.getLoadWorker().stateProperty().addListener(
+        new ChangeListener<State>() {
+          @Override public void changed(ObservableValue ov, State oldState, State newState) {
+            if (!isWebPageUpdate && newState == Worker.State.SUCCEEDED) {
+              webEngine.reload();
+              isWebPageUpdate = true;
+            }    
+          }
+        }
+     );
+    
   }
 
   @Override
@@ -43,7 +51,7 @@ public class PreviewView extends Dialog<String> implements View {
     }
     
     if(instruction.equals(UPDATE_LOADPAGE)){
-      String pagePath = (String)statement.getValue();
+      String pagePath = (String)statement.getValue();  
       webEngine.load(pagePath);
     }
   }

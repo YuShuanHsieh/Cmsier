@@ -47,15 +47,15 @@ The default setting of CSS layout
 
 .wrap{
   min-height: 100%;
-  background-color: #fdf7e9;
+  background-color: #f2f2f2;
 }
 
 .header{
-  background-color: #1d5468;
+  background-color: #808080;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
-  border-top: 1em solid #0f2c35;
+  border-top: 1em solid #262626;
 }
 
 .header-container {
@@ -78,7 +78,7 @@ The default setting of CSS layout
 }
 
 .nav{
-  background-color: #1d5468;
+  background-color: #808080;
   height: 3em;
 }
 .nav > .nav-box {
@@ -108,12 +108,12 @@ The default setting of CSS layout
 
 .nav-item-link:hover {
   background-color: #F2F2F2;
-  color: #1d5468;
+  color: #808080;
 
 }
 
 .main {
-  color: #4f4f4f;
+  color: #4d4d4d;
   width: 70%;
   margin: auto;
   margin-top: 2em;
@@ -148,6 +148,6 @@ p{
   text-align: center;
   font-size: small;
   color: #FFFFFF;
-  background: #0f2c35;
+  background: #262626;
   line-height: 2.5em;
 }

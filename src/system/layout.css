@@ -7,7 +7,7 @@ ComboBox, ToggleButton, Button, ColorPicker, ChoiceBox{
 }
 
 ColorPicker:hover, ChoiceBox:hover{
-	-fx-background-color:#004a80;
+	-fx-background-color:#b2c8d8;
 	-fx-border-color: #004a80;
 	-fx-text-fill:#FFFFFF;
 }
@@ -16,6 +16,9 @@ TextField{
 	-fx-background-color:#FFFFFF;
 	-fx-border-color: #CCCCCC;
 	-fx-border-radius: 5;
+}
+TextField:focused{
+	-fx-background-color: #b2c8d8;
 }
 
 .button:hover{

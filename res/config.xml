@@ -10,7 +10,7 @@
             <targetURL>./page/text.html</targetURL>
         </MenuItem>
     </Menu>
-    <layout>rose</layout>
+    <layout>blue</layout>
     <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
     <subTitle>My websites</subTitle>

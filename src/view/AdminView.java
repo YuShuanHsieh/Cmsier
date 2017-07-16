@@ -98,10 +98,15 @@ public class AdminView extends Dialog<String> implements View {
     
     localPathBrowseButton = new Button("Browse");
     
-    Label serverPathLabel = new Label("Server Path");
+    Label serverPathLabel = new Label("Web site address");
     serverPath = new TextField();
     serverPath.setPrefWidth(350);
     serverPathLabel.setGraphic(new ImageView(settingIcon));
+    
+    Label footerLabel = new Label("Footer");
+    TextField footerField = new TextField("@copy right");
+    footerField.setPrefWidth(350);
+    footerLabel.setGraphic(new ImageView(settingIcon));
     
     grid.add( titleLabel, 0, 0);
     grid.add( titleInput, 1, 0, 2, 1);
@@ -112,13 +117,15 @@ public class AdminView extends Dialog<String> implements View {
     grid.add( localPathBrowseButton, 2, 2);
     grid.add( serverPathLabel, 0, 3);
     grid.add( serverPath, 1, 3, 2, 1);
+    grid.add( footerLabel, 0, 4);
+    grid.add( footerField, 1, 4, 2, 1);
     
     generalSettingTab.setContent(grid);
     tabPane.getTabs().add(generalSettingTab);
     
     webView = new WebView();
     webEngine = webView.getEngine();
-    webView.setPrefWidth(300);
+    webView.setPrefWidth(350);
     webView.setPrefHeight(200);
     webView.setZoom(0.5);
     
@@ -143,30 +150,37 @@ public class AdminView extends Dialog<String> implements View {
     
     layoutSettingTab.setText("Layout");
     layoutBox.getItems().addAll("blue","rose");
+    layoutLabel.setGraphic(new ImageView(settingIcon));
     
     Label layoutBKLabel = new Label("Header");
     BKpick = new ColorPicker();
     BKpick.setId(CSSCOLOR_HEADER);
+    layoutBKLabel.setGraphic(new ImageView(settingIcon));
     
     Label titleColorLabel = new Label("Title");
     titleColorPick = new ColorPicker();
     titleColorPick.setId(CSSCOLOR_TITLE);
+    titleColorLabel.setGraphic(new ImageView(settingIcon));
     
     Label subTitleColorLabel = new Label("Subtitle");
     subTitleColorPick = new ColorPicker();
     subTitleColorPick.setId(CSSCOLOR_SUBTITLE);
+    subTitleColorLabel.setGraphic(new ImageView(settingIcon));
     
     Label mainColorLabel = new Label("Background");
     mainColorPick = new ColorPicker();
     mainColorPick.setId(CSSCOLOR_MAIN);
+    mainColorLabel.setGraphic(new ImageView(settingIcon));
     
     Label contentColorLabel = new Label("Content");
     contentColorPick = new ColorPicker();
     contentColorPick.setId(CSSCOLOR_CONTENT);
+    contentColorLabel.setGraphic(new ImageView(settingIcon));
     
     Label frameColorLabel = new Label("Frame");
     frameColorPick = new ColorPicker();
     frameColorPick.setId(CSSCOLOR_FRAME);
+    frameColorLabel.setGraphic(new ImageView(settingIcon));
     
     layoutGrid.setVgap(5);
     layoutGrid.setHgap(5);

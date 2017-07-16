@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cssxmLsettings>
-    <contentColor>#4f4f4f</contentColor>
+    <contentColor>#ffffff</contentColor>
     <frameColor>#4d4d4d</frameColor>
-    <headerColor>#b31a1a</headerColor>
-    <mainColor>#F2F2F2</mainColor>
+    <headerColor>#cc3333</headerColor>
+    <mainColor>#000000</mainColor>
     <name>rose</name>
     <subTitleColor>#ffffcc</subTitleColor>
     <titleColor>#ffffff</titleColor>

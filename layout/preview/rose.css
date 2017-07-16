@@ -47,11 +47,11 @@ The default setting of CSS layout
 
 .wrap{
   min-height: 100%;
-  background-color: #F2F2F2;
+  background-color: #000000;
 }
 
 .header{
-  background-color: #b31a1a;
+  background-color: #cc3333;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
@@ -113,7 +113,7 @@ The default setting of CSS layout
 }
 
 .main {
-  color: #4f4f4f;
+  color: #ffffff;
   width: 70%;
   margin: auto;
   margin-top: 2em;
