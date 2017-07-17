@@ -19,7 +19,7 @@ public class XmlHelper {
   
   public Settings retrieveSettingFromXML() {
     try {
-      File XMLfile = new File(SystemSettings.settingsXMLPath);
+      File XMLfile = new File(SystemSettings.configXMLFile);
       JAXBContext context = JAXBContext.newInstance(Settings.class);
       Unmarshaller unmarshaller = context.createUnmarshaller();
       
@@ -36,19 +36,14 @@ public class XmlHelper {
     return null;
   }
   
-  public CSSXMLsettings retrieveCSSSettingFromXML(String layoutName) {
+  public CSSXMLsettings retrieveCSSSettingFromXML(File CssXMLFile) {
+    
     try {
       JAXBContext context = JAXBContext.newInstance(CSSXMLsettings.class);
       Unmarshaller unmarshaller = context.createUnmarshaller();
       
-      File cssFile = new File("layout/CssXML/" + layoutName + ".xml");
-      if(cssFile.exists()) {
-        CSSXMLsettings CSSsettings = (CSSXMLsettings) unmarshaller.unmarshal(cssFile);
-        return CSSsettings;
-      }
-      else{
-        System.out.println("This file does not exist.");
-      }
+      CSSXMLsettings CSSsettings = (CSSXMLsettings) unmarshaller.unmarshal(CssXMLFile);
+      return CSSsettings;
       
     } catch (JAXBException e) {
       e.printStackTrace();
@@ -56,9 +51,10 @@ public class XmlHelper {
     return null;
   }
   
-  public void writeSettingToXML(CSSXMLsettings cssSettings){
+  public void writeSettingToXML(CSSXMLsettings cssSettings, Settings settings){
+    final String CssXMLPath =settings.getLocalPath() + SystemSettings.D_layout + "/" + SystemSettings.D_layout_xml + "/";
     try {
-        File XMLfile = new File("layout/CssXML/" + cssSettings.getName() + ".xml");
+        File XMLfile = new File(CssXMLPath + cssSettings.getName() + ".xml");
         if(!XMLfile.exists()){
           XMLfile.createNewFile();
         }
@@ -73,7 +69,7 @@ public class XmlHelper {
   
   public void writeSettingToXML(Settings web){
     try {
-        File XMLfile = new File(SystemSettings.settingsXMLPath);
+        File XMLfile = new File(SystemSettings.configXMLFile);
         JAXBContext context = JAXBContext.newInstance(Settings.class);
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

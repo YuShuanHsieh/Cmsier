@@ -31,6 +31,7 @@ public class AdminView extends Dialog<String> implements View {
   private TextField subTitleInput;
   private TextField localPath;
   private TextField serverPath;
+  private TextField footerField;
   private Button localPathBrowseButton;
   private ChoiceBox<String> layoutBox;
   private WebView webView;
@@ -58,7 +59,7 @@ public class AdminView extends Dialog<String> implements View {
   private boolean isWebPageUpdate = false;
   
   public enum Filed{
-    title, subtitle, localPath, serverPath
+    title, subtitle, localPath, serverPath, footer
   }
 
   @Override
@@ -104,7 +105,7 @@ public class AdminView extends Dialog<String> implements View {
     serverPathLabel.setGraphic(new ImageView(settingIcon));
     
     Label footerLabel = new Label("Footer");
-    TextField footerField = new TextField("@copy right");
+    footerField = new TextField();
     footerField.setPrefWidth(350);
     footerLabel.setGraphic(new ImageView(settingIcon));
     
@@ -254,6 +255,8 @@ public class AdminView extends Dialog<String> implements View {
         return this.localPath;
       case serverPath :
         return this.serverPath;
+      case footer :
+        return this.footerField;
       default:
       return null;
     }
@@ -272,6 +275,7 @@ public class AdminView extends Dialog<String> implements View {
     subTitleInput.setText(setting.getSubTitle());
     localPath.setText(setting.getLocalPath());
     serverPath.setText(setting.getPublish());
+    footerField.setText(setting.getFooter());
     layoutBox.getSelectionModel().select(setting.getLayout());
   }
   

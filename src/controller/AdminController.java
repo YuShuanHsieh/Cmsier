@@ -57,6 +57,7 @@ public class AdminController extends Controller {
         String subTitle = castView.getField(Filed.subtitle).getText();
         String localPath = castView.getField(Filed.localPath).getText();
         String serverPath = castView.getField(Filed.serverPath).getText();
+        String footer = castView.getField(Filed.footer).getText();
         
         ChoiceBox<String> layoutBox = castView.getLayoutBox();
         String selectedLayout = layoutBox.getSelectionModel().getSelectedItem();
@@ -65,7 +66,7 @@ public class AdminController extends Controller {
           selectedLayout = "blue";
         }
         
-        castModel.modifySettingsField(title, subTitle, localPath, serverPath, selectedLayout);
+        castModel.modifySettingsField(title, subTitle, localPath, serverPath, selectedLayout,footer);
         castModel.modifyCssSetting();
        
       }

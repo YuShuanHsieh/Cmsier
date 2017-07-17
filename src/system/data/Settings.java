@@ -15,6 +15,7 @@ public class Settings {
   String publish;
   String localPath;
   String layout;
+  String footer;
   
   @XmlElementWrapper(name = "Menu")
   @XmlElement(name = "MenuItem")
@@ -30,6 +31,10 @@ public class Settings {
 
   public void setSubTitle(String subTitle) {
     this.subTitle = subTitle;
+  }
+  
+  public void setFooter(String footer) {
+    this.footer = footer;
   }
   
   public void setPublish(String publish) {
@@ -52,6 +57,11 @@ public class Settings {
   @XmlElement
   public String getSubTitle() {
     return this.subTitle;
+  }
+  
+  @XmlElement
+  public String getFooter() {
+    return this.footer;
   }
   
   @XmlElement

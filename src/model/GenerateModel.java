@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import controller.UploadController;
-import model.component.Templatetor;
+import model.render.Templatetor;
 import model.utility.PathHelper;
 import system.Statement;
 import system.SystemSettings;
@@ -47,16 +47,16 @@ public class GenerateModel extends Model {
     
     switch(type){
       case draft:
-        pagePath = settings.getLocalPath() + SystemSettings.draftDirectory + "/";
-        cssPath = "\"file://" + settings.getLocalPath() + "res/" + settings.getLayout() + ".css\"";
+        pagePath = settings.getLocalPath() + SystemSettings.D_draft + "/";
+        cssPath = "\"file://" + settings.getLocalPath() + SystemSettings.D_css + "/" + settings.getLayout() + ".css\"";
         for(SettingItem menuItem : settings.getMenu()) {
           menu = menu + "<li class = \"nav-item\"><a class = \"nav-item-link\">" + menuItem.getName() + "</a></li>";
         }
         modifiedContent = simplePage.getPageContent();
       break;
       case official:
-        pagePath = settings.getLocalPath() + SystemSettings.publishDirectory + "/";
-        cssPath = "\"" +settings.getPublish() + SystemSettings.sourceDirectory + "/" + settings.getLayout() + ".css\"";
+        pagePath = settings.getLocalPath() + SystemSettings.D_web + "/";
+        cssPath = "\"" +settings.getPublish() + SystemSettings.D_css + "/" + settings.getLayout() + ".css\"";
         for(SettingItem menuItem : settings.getMenu()) {
           menu = menu + "<li class = \"nav-item\"><a class = \"nav-item-link\" href = \"";
           menu = menu + settings.getPublish() +  menuItem.getTargetURL();
@@ -71,7 +71,7 @@ public class GenerateModel extends Model {
     
     // get a complete path of page file from SimplePage 
     pagePath = pathHelper.getPathFromSimplePage(simplePage, settings, pagePath);
-    templatePath = SystemSettings.templateDirectory + "/" + settings.getLayout() +".html";
+    templatePath = SystemSettings.D_template + "/" + settings.getLayout() +".html";
     
     try{
       Templatetor page = new Templatetor(templatePath, pagePath);
@@ -80,6 +80,7 @@ public class GenerateModel extends Model {
       page.addKeyAndContent("subTitle", settings.getSubTitle());
       page.addKeyAndContent("menu", menu);
       page.addKeyAndContent("content", modifiedContent);
+      page.addKeyAndContent("footer", settings.getFooter());
       File finalPageFile = page.run();
       dataCenter.getData().setCurrentPageLocalPath("file://" + finalPageFile.getAbsolutePath());
     }
@@ -96,7 +97,7 @@ public class GenerateModel extends Model {
     List<SetPage> tempData = new LinkedList<SetPage>();
     /* delete current final page in web folder. */
     try{
-      pathHelper.deleteFilesFromDirectory(dataCenter.getSettings().getLocalPath() + "web/");
+      pathHelper.deleteFilesFromDirectory(dataCenter.getSettings().getLocalPath() + SystemSettings.D_web +"/");
     
       while(!pageList.isEmpty()) {
     

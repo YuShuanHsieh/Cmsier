@@ -3,7 +3,7 @@ package model;
 import java.io.File;
 import java.io.IOException;
 import view.AdminView;
-import model.component.Templatetor;
+import model.render.Templatetor;
 import model.utility.XmlHelper;
 import system.Statement;
 import system.SystemSettings;
@@ -15,6 +15,11 @@ public class AdminModel extends Model {
   private XmlHelper xmlHelper;
   private CSSXMLsettings cssSettings;
   private Settings settings;
+  private final String CSStemplatePath = SystemSettings.D_layout + "/" + SystemSettings.D_layout_template + "/";
+  private final String CSSxmlPath = SystemSettings.D_layout + "/" + SystemSettings.D_layout_xml + "/";
+  private final String CSSpreviewPath = SystemSettings.D_layout + "/" + SystemSettings.D_layout_preview + "/";
+  private final String cssPath = SystemSettings.D_css + "/";
+  private final String templatePath = SystemSettings.D_template + "/";
   
   @Override
   public void init() {
@@ -39,23 +44,25 @@ public class AdminModel extends Model {
   }
   
   public void changeLayoutColor(){
-    String layoutName = settings.getLayout();
-    String tempPath = "layout/preview/" + layoutName + ".css";
-    generateCssFile(tempPath);
+    String targetCssFile = settings.getLocalPath() + CSSpreviewPath + settings.getLayout() + ".css";
+    generateCssFile(targetCssFile);
     view.updateStatement(AdminView.UPDATE_RELOADPAGE, Statement.success(null));
   }
   
-  public boolean modifySettingsField(String title, String subTitle, String localPath, String serverPath, String layout) {
+  public boolean modifySettingsField(String title, String subTitle, String localPath, String serverPath, String layout, String footer) {
     if(title.trim().isEmpty()) {
       return false;
     }
     else if(subTitle.trim().isEmpty()) {
       return false;
     }
-    else if(localPath.trim().isEmpty()) {
+    else if(localPath.trim().isEmpty()) { 
       return false;
     }
     else if(serverPath.trim().isEmpty()) {
+      return false;
+    }
+    else if(footer.trim().isEmpty()) {
       return false;
     }
     else {
@@ -63,7 +70,8 @@ public class AdminModel extends Model {
       settings.setSubTitle(subTitle);
       settings.setLocalPath(localPath);
       settings.setPublish(serverPath);
-      settings.setLayout(layout);  
+      settings.setLayout(layout); 
+      settings.setFooter(footer);
     }
     XmlHelper xmlHelper = new XmlHelper();
     xmlHelper.writeSettingToXML(settings);
@@ -71,19 +79,19 @@ public class AdminModel extends Model {
   }
   
   public void modifyCssSetting(){
-    xmlHelper.writeSettingToXML(cssSettings);
-    String tempPath = settings.getLocalPath() + "res/" + cssSettings.getName() + ".css";
+    xmlHelper.writeSettingToXML(cssSettings, settings);
+    String tempPath = settings.getLocalPath() + cssPath + cssSettings.getName() + ".css";
     generateCssFile(tempPath);
   }
     
   public void generatePreviewPage(){
     String layoutName = settings.getLayout();
-    String tempPath = "layout/preview/" + layoutName + ".css";
-    File cssFile = generateCssFile(tempPath);
+    String targetCssFile = settings.getLocalPath() + CSSpreviewPath + layoutName + ".css";
+    File cssFile = generateCssFile(targetCssFile);
     try{
       
-      String pageTemplatePath = "template/" + layoutName + ".html";
-      String pageTempPath = "layout/preview/" + layoutName + ".html";
+      String pageTemplatePath = templatePath + layoutName + ".html";
+      String pageTempPath = settings.getLocalPath() + CSSpreviewPath + layoutName + ".html";
     
       Templatetor page = new Templatetor(pageTemplatePath, pageTempPath);
       page.addKeyAndContent("css", "\"file://" + cssFile.getAbsolutePath() + "\"");
@@ -91,6 +99,7 @@ public class AdminModel extends Model {
       page.addKeyAndContent("subTitle", "layout subtitle example");
       page.addKeyAndContent("menu", "<li class = \"nav-item\"><a class = \"nav-item-link\">menu</a></li>");
       page.addKeyAndContent("content", "this is layout page preview.");
+      page.addKeyAndContent("footer", "example@copy right.");
       File previewPageFile = page.run();
       view.updateStatement(AdminView.UPDATE_LOADPAGE, Statement.success(previewPageFile.getAbsolutePath()));
     }
@@ -100,7 +109,7 @@ public class AdminModel extends Model {
   }
   
   private File generateCssFile(String targetPath){
-    String templatePath = "layout/CssTemplate/" + settings.getLayout() + ".css";
+    String templatePath = CSStemplatePath + settings.getLayout() + ".css";
     File cssFile;
     try{
       Templatetor template = new Templatetor(templatePath, targetPath);
@@ -124,7 +133,7 @@ public class AdminModel extends Model {
   private CSSXMLsettings getCssSettings(){
     CSSXMLsettings cssSetting = null;
     String layoutName = settings.getLayout();
-    File file = new File("layout/CssXML/" + layoutName + ".xml"); 
+    File file = new File(settings.getLocalPath() + CSSxmlPath + layoutName + ".xml"); 
     try{
       if(!file.exists()){
         SystemSettings systemSettings = new SystemSettings();
@@ -133,7 +142,7 @@ public class AdminModel extends Model {
       }
       else{
         XmlHelper xmlHelper = new XmlHelper();
-        cssSetting = xmlHelper.retrieveCSSSettingFromXML(layoutName);
+        cssSetting = xmlHelper.retrieveCSSSettingFromXML(file);
       }
     }
     catch(Exception e){

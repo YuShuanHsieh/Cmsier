@@ -7,16 +7,22 @@ import system.data.CSSXMLsettings;
 
 public class SystemSettings {
 
-  public final static String settingsXMLPath = "res/config.xml";
-  public final static String draftDirectory = "draft";
-  public final static String editDirectory = "edit";
-  public final static String sourceDirectory = "res";
-  public final static String imgDirectory = "upload";
-  public final static String publishDirectory = "web";
-  public final static String templateDirectory = "template";
-  public final static String defaultSubDirectory = "page";
-  public final static String defaultDirectoryPath = "/Documents/CMS/";
-  public final static String ftpdefaultDirectory = "public_html";
+  public final static String configXMLFile = "config.xml";
+  
+  /* Default name of directory */
+  public final static String D_draft = "draft";
+  public final static String D_edit = "edit";
+  public final static String D_css = "css";
+  public final static String D_upload = "upload";
+  public final static String D_web = "web";
+  public final static String D_template = "template";
+  public final static String D_sub_page = "page";
+  public final static String D_root = "/Documents/CMS/";
+  public final static String D_layout = "layout";
+  public final static String D_layout_template = "CssTemplate";
+  public final static String D_layout_xml = "CssXML";
+  public final static String D_layout_preview = "preview";
+  public final static String D_ftp = "public_html";
   private Map<String, String[]> defaultLayout;
   
   public SystemSettings(){

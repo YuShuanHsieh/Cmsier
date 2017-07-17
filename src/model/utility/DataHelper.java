@@ -40,7 +40,7 @@ public class DataHelper {
    */
   public Data retrieveDataFromFiles(String localPath) {
     Data data = new Data();
-    String rootDirectory = localPath + SystemSettings.editDirectory + "/";
+    String rootDirectory = localPath + SystemSettings.D_edit + "/";
     retrieveDataFromFile(data, rootDirectory, null);
     return data;
   }

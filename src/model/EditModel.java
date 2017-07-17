@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import model.utility.PathHelper;
 import model.utility.XmlHelper;
-import model.component.Upload;
 import model.utility.DataHelper;
 import system.Statement;
 import system.SystemSettings;
@@ -46,8 +45,9 @@ public class EditModel extends Model {
     /* 
      * Initialize the local path when user firstly start this application.
      * */
-    if(!xmlHelper.isLocalPathExistingInXML()) {
-      String defaultDirectory = pathHelper.createDefaultDirectoyInLocalPath();
+    File rootDirectory = new File(settings.getLocalPath());
+    if(!xmlHelper.isLocalPathExistingInXML() || !rootDirectory.exists()) {
+      String defaultDirectory = pathHelper.createDefaultDirectoy();
       settings.setLocalPath(defaultDirectory);
       xmlHelper.writeSettingToXML(settings);
     }
@@ -63,7 +63,7 @@ public class EditModel extends Model {
   public boolean savePageContent(Object treeItem, String content, String customizedName) {
     settings = dataCenter.getSettings();   
     //Generator generator = new Generator();
-    String pathUrl = settings.getLocalPath() + SystemSettings.editDirectory + "/";
+    String pathUrl = settings.getLocalPath() + SystemSettings.D_edit + "/";
     
     Page page = (Page)treeItem;
     if(page.getName().endsWith("html")){
@@ -131,7 +131,7 @@ public class EditModel extends Model {
   }
   
   private void deleteExistingPageFile(SimplePage page) {
-    String localFullPath = dataCenter.getSettings().getLocalPath() + SystemSettings.editDirectory + "/";
+    String localFullPath = dataCenter.getSettings().getLocalPath() + SystemSettings.D_edit + "/";
     String filePath = pathHelper.getPathFromSimplePage(page, settings, localFullPath);
     File file = new File(filePath);
     if(file.exists()){
@@ -141,7 +141,7 @@ public class EditModel extends Model {
   
   public void addNewSimplePage(SetPage setPage, String fileName) {
     String fullFileName = fileName.trim() + ".html";
-    String defaultEditPath = dataCenter.getSettings().getLocalPath() + SystemSettings.editDirectory +"/";
+    String defaultEditPath = dataCenter.getSettings().getLocalPath() + SystemSettings.D_edit +"/";
     Deque<SetPage> stack = new LinkedList<SetPage>();
     
     if(data.isExistingPage(2, fullFileName)) {
@@ -226,7 +226,7 @@ public class EditModel extends Model {
         String fileName = splitFile[splitFile.length -1];
         
         File originalFile = new File(filePah);
-        String imgUploadPath = settings.getLocalPath() + SystemSettings.imgDirectory + "/";
+        String imgUploadPath = settings.getLocalPath() + SystemSettings.D_upload + "/";
         File newFile = new File(imgUploadPath + fileName);
         
         try{

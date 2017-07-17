@@ -1,15 +1,15 @@
-package model.component;
+package model.render;
 
 import java.io.File;
-/*
- * It only supports files with characters.
-*/
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+/*
+ * It only supports files with characters.
+ * @Author: Yu-Shuan
+*/
 public class Templatetor {
 
   private File templateFile;

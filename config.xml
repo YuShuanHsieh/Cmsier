@@ -6,10 +6,11 @@
             <targetURL>./index.html</targetURL>
         </MenuItem>
         <MenuItem>
-            <name>AboutMe</name>
+            <name>About Me</name>
             <targetURL>./page/text.html</targetURL>
         </MenuItem>
     </Menu>
+    <footer>Cherrie@copy right.</footer>
     <layout>rose</layout>
     <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>

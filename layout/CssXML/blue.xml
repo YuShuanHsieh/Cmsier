@@ -2,9 +2,9 @@
 <cssxmLsettings>
     <contentColor>#4d4d4d</contentColor>
     <frameColor>#262626</frameColor>
-    <headerColor>#333333</headerColor>
-    <mainColor>#f2f2f2</mainColor>
+    <headerColor>#003333</headerColor>
+    <mainColor>#ffffff</mainColor>
     <name>blue</name>
     <subTitleColor>#FFFFFF</subTitleColor>
-    <titleColor>#FFFFFF</titleColor>
+    <titleColor>#ffffcc</titleColor>
 </cssxmLsettings>

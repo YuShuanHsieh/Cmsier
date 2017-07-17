@@ -58,15 +58,15 @@ public class UploadModel extends Model {
     List<String> tempList = new LinkedList<String>();
     String pathName;
     String publishPath;
-    String ftpPath = "/"+SystemSettings.ftpdefaultDirectory+"/";
+    String ftpPath = "/"+SystemSettings.D_ftp+"/";
     
-    directoryList.add(SystemSettings.editDirectory);
-    directoryList.add(SystemSettings.sourceDirectory);
-    directoryList.add(SystemSettings.publishDirectory);
-    directoryList.add(SystemSettings.imgDirectory);
+    directoryList.add(SystemSettings.D_edit);
+    directoryList.add(SystemSettings.D_css);
+    directoryList.add(SystemSettings.D_web);
+    directoryList.add(SystemSettings.D_upload);
     
     try{
-      ftpClient.changeWorkingDirectory("/" + SystemSettings.ftpdefaultDirectory);
+      ftpClient.changeWorkingDirectory("/" + SystemSettings.D_ftp);
       ftpClient.enterLocalPassiveMode();
       ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
     }
@@ -75,6 +75,7 @@ public class UploadModel extends Model {
       return false;
     }
     view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Start to upload Web pages to server."));
+    /* Upload directory to Web server */
     while(true){
       for(String directoryName : directoryList){
         pathName = directoryName + "/";
@@ -91,8 +92,8 @@ public class UploadModel extends Model {
             try{
               FileInputStream uploadfile = new FileInputStream(localPath + pathName + file.getName());
               
-              if(publishPath.contains(SystemSettings.publishDirectory + "/")) {
-                publishPath = publishPath.replace(SystemSettings.publishDirectory + "/", "");
+              if(publishPath.contains(SystemSettings.D_web + "/")) {
+                publishPath = publishPath.replace(SystemSettings.D_web + "/", "");
               }
               
               if(ftpClient.cwd(ftpPath + publishPath) == 550){
@@ -100,6 +101,7 @@ public class UploadModel extends Model {
               }
               
               ftpClient.storeFile( ftpPath + publishPath + file.getName(), uploadfile);
+              uploadfile.close();
             }
             catch(IOException e) {
               e.printStackTrace();
@@ -115,6 +117,17 @@ public class UploadModel extends Model {
       directoryList = tempList.stream().collect(Collectors.toList());
       tempList.clear();
     }
+    
+    /* Upload the config file to Web server. */
+    try{
+      FileInputStream configFile = new FileInputStream(localPath + SystemSettings.configXMLFile);
+      ftpClient.storeFile( ftpPath + SystemSettings.configXMLFile, configFile);
+      configFile.close();
+    }
+    catch(Exception e){
+      e.printStackTrace();  
+    }
+    
     view.updateStatement(UploadController.UPLOAD_PROCESS, Statement.success("- Upload Web pages to server successfully."));
     return true;
   }

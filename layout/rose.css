@@ -47,15 +47,15 @@ The default setting of CSS layout
 
 .wrap{
   min-height: 100%;
-  background-color: #ffffff;
+  background-color: <main>;
 }
 
 .header{
-  background-color: #1a3399;
+  background-color: <bk>;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
-  border-bottom: 1em solid #4d4d4d;
+  border-bottom: 1em solid <frame>;
   height: 70px;
 }
 
@@ -69,7 +69,7 @@ The default setting of CSS layout
 .header-title {
   font-weight: normal;
   letter-spacing: 0.1em;
-  color: #ffffff;
+  color: <title>;
 }
 
 .header-subTitle {
@@ -77,7 +77,7 @@ The default setting of CSS layout
   letter-spacing: 0.1em;
   font-size: 1.2em;
   margin-top: 0.5em;
-  color: #ffffcc;
+  color: <subtitle>;
 }
 
 .header-menu-container {
@@ -113,7 +113,7 @@ The default setting of CSS layout
 }
 
 .main {
-  color: #333333;
+  color: <content>;
   width: 70%;
   margin: auto;
   margin-top: 2em;
@@ -147,6 +147,6 @@ p{
   text-align: center;
   font-size: small;
   color: #FFFFFF;
-  background: #4d4d4d;
+  background: <frame>;
   line-height: 2.5em;
 }

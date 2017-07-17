@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cssxmLsettings>
-    <contentColor>#ffffff</contentColor>
-    <frameColor>#4d4d4d</frameColor>
-    <headerColor>#cc3333</headerColor>
-    <mainColor>#000000</mainColor>
+    <contentColor>#4f4f4f</contentColor>
+    <frameColor>#333333</frameColor>
+    <headerColor>#1a4d4d</headerColor>
+    <mainColor>#ffffff</mainColor>
     <name>rose</name>
-    <subTitleColor>#ffffcc</subTitleColor>
-    <titleColor>#ffffff</titleColor>
+    <subTitleColor>#FFFFFF</subTitleColor>
+    <titleColor>#FFFFFF</titleColor>
 </cssxmLsettings>

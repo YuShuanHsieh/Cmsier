@@ -42,7 +42,7 @@ TextField:focused{
 }
 
 .button#upload, .button#save, .button#setting {
-  -fx-background-color: #F2F2F2;
+  -fx-background-color: #eaeaea;
   -fx-border-width: 0px;
 }
 

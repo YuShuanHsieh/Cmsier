@@ -47,11 +47,11 @@ The default setting of CSS layout
 
 .wrap{
   min-height: 100%;
-  background-color: #f2f2f2;
+  background-color: #ffffff;
 }
 
 .header{
-  background-color: #333333;
+  background-color: #003333;
   text-align: center;
   padding-top: 1.5em;
   padding-bottom: 1.5em;
@@ -64,7 +64,7 @@ The default setting of CSS layout
 }
 
 .header-title {
-  color: #FFFFFF;
+  color: #ffffcc;
   font-weight: normal;
   letter-spacing: 0.1em;
 }
@@ -78,7 +78,7 @@ The default setting of CSS layout
 }
 
 .nav{
-  background-color: #333333;
+  background-color: #003333;
   height: 3em;
 }
 .nav > .nav-box {
@@ -108,7 +108,7 @@ The default setting of CSS layout
 
 .nav-item-link:hover {
   background-color: #F2F2F2;
-  color: #333333;
+  color: #003333;
 
 }
 

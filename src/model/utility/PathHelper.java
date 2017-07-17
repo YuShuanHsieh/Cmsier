@@ -24,40 +24,41 @@ public class PathHelper {
    * @see SystemSettings 
    */
   private static final String[] defaultDirectories = {
-      SystemSettings.draftDirectory, SystemSettings.draftDirectory + "/" + SystemSettings.defaultSubDirectory + "/", 
-      SystemSettings.editDirectory, SystemSettings.imgDirectory,
-      SystemSettings.publishDirectory, SystemSettings.publishDirectory + "/" + SystemSettings.defaultSubDirectory + "/",
-      SystemSettings.sourceDirectory};
+      SystemSettings.D_draft, SystemSettings.D_draft + "/" + SystemSettings.D_sub_page + "/", 
+      SystemSettings.D_edit, SystemSettings.D_upload,
+      SystemSettings.D_web, SystemSettings.D_web + "/" + SystemSettings.D_sub_page + "/",
+      SystemSettings.D_css,
+      SystemSettings.D_layout,SystemSettings.D_layout + "/" + SystemSettings.D_layout_xml + "/",
+      SystemSettings.D_layout + "/" + SystemSettings.D_layout_preview + "/"
+      };
   
-  public String createDefaultDirectoyInLocalPath(){
+  public String createDefaultDirectoy(){
     String homeDirectory = System.getProperty("user.home");
-    String localFullPath = "";
-    File defaultDirectory = new File(homeDirectory + SystemSettings.defaultDirectoryPath);
+    String rootDirectoryPath = homeDirectory + SystemSettings.D_root;
+    File rootDirectory = new File(rootDirectoryPath);
     
     try{
       
-      if(!defaultDirectory.exists()) {
-        defaultDirectory.mkdirs();
+      if(!rootDirectory.exists()) {
+        rootDirectory.mkdirs();
       }
       
-      localFullPath = homeDirectory + SystemSettings.defaultDirectoryPath;
-      
       for(String subDefaultDirectory : defaultDirectories) {
-        File sub = new File(homeDirectory + SystemSettings.defaultDirectoryPath + subDefaultDirectory);
+        File sub = new File(homeDirectory + SystemSettings.D_root + subDefaultDirectory);
         if(!sub.exists()) {
           sub.mkdirs();
         }
       } 
       
-      copyInnerFileToLocalPath(localFullPath, SystemSettings.sourceDirectory + "/");
-      copyInnerFileToLocalPath(localFullPath, SystemSettings.editDirectory + "/");
-
+      copyInnerDirdctoryToLocalPath(rootDirectoryPath, SystemSettings.D_css + "/");
+      copyInnerDirdctoryToLocalPath(rootDirectoryPath, SystemSettings.D_edit + "/");
+      copyInnerFileToLocalPath(rootDirectoryPath, "", SystemSettings.configXMLFile);
       
     }catch(Exception e) {
       e.printStackTrace();
       return null;
     }
-    return homeDirectory + SystemSettings.defaultDirectoryPath;
+    return rootDirectoryPath;
   }
   
   /* !!Notice: ignore the default folder.
@@ -68,7 +69,7 @@ public class PathHelper {
     SetPage setPage = simplePage.getParent();
     
     while(setPage != null) {
-      if(directoryPath.equals(settings.getLocalPath() + SystemSettings.editDirectory + "/") || !setPage.getName().equals("default"))
+      if(directoryPath.equals(settings.getLocalPath() + SystemSettings.D_edit + "/") || !setPage.getName().equals("default"))
       stack.push(setPage);
       setPage = setPage.getParent();
     }
@@ -85,16 +86,16 @@ public class PathHelper {
     String pathUrl = "";
     
     if(type == 1){
-      pathUrl = SystemSettings.publishDirectory + "/";
+      pathUrl = SystemSettings.D_web + "/";
     }
     else {
-      pathUrl = SystemSettings.draftDirectory + "/";
+      pathUrl = SystemSettings.D_draft + "/";
     }
     
     Deque<SetPage> stack = new LinkedList<SetPage>();
     SetPage setPage = simplePage.getParent();
     
-    while(setPage != null && !setPage.getName().equals(SystemSettings.draftDirectory)) {
+    while(setPage != null && !setPage.getName().equals(SystemSettings.D_draft)) {
       stack.push(setPage);
       setPage = setPage.getParent();
     }
@@ -152,14 +153,11 @@ public class PathHelper {
     }
   }
   
-  private static void copyInnerFileToLocalPath(String localPath, String innerPath) {
+  private static void copyInnerDirdctoryToLocalPath(String localPath, String innerPath) {
     List<File> fileList;
     List<File> temp = new ArrayList<File>();
     File innerDirectory = new File(innerPath);
-    if(!innerDirectory.exists()) {
-      throw new NullPointerException("InnerPath does not exist");
-    }
-    
+
     fileList = Arrays.asList(innerDirectory.listFiles());
     
     while(true){
@@ -191,11 +189,18 @@ public class PathHelper {
     }
   }
   
-  /*
-  public static void main(String[] args) {
-    PathHelper helper = new PathHelper();
-    helper.createDefaultDirectoyInLocalPath();
+  private static void copyInnerFileToLocalPath(String localPath, String innerPath, String filName){
+    File innerFile = new File(innerPath + filName);
+    File localFile = new File(localPath + filName);
+    
+    if(!localFile.exists()){
+      try{
+        Files.copy(innerFile.toPath(), localFile.toPath());
+      }
+      catch(Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
-  */
   
 }

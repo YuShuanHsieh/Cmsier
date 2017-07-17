@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.scene.control.MenuItem;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -138,13 +139,16 @@ public class EditView implements View{
 	  centerSubView.add( isShowLabel, 1, 0);
 	  centerSubView.add( showInput, 2, 0);
 	  centerSubView.setVisible(false);
-	  
+
 	  stackPane.getChildren().addAll( imgInstruction, centerSubView);
 	  
 	  TreeViewOfSetPage.setShowRoot(false);
 	  vbox.getChildren().addAll(TreeViewOfSetPage);
 	  
 	  HBox hbox = new HBox();
+	  hbox.setSpacing(15);
+	  hbox.setStyle("-fx-background-color: #eaeaea; -fx-padding: 5 0 5 0; -fx-border-width: 0 0 1 0; -fx-border-color: #CCC;");
+	  hbox.setAlignment(Pos.CENTER);
 	  hbox.getChildren().addAll(settingButton, saveButton, uploadbutton);
 	  
 	  view.setTop(hbox);
