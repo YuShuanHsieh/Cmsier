@@ -4,12 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import system.data.CSSXMLsettings;
+import system.data.Category;
+import system.data.SinglePage;
 
 public class SystemSettings {
 
-  public final static String configXMLFile = "config.xml";
+  public final static String configXMLFile = "config/config.xml";
+  public final static String ftpXMLFile = "config/ftp_config.xml";
   
   /* Default name of directory */
+  public final static String D_config = "config";
   public final static String D_draft = "draft";
   public final static String D_edit = "edit";
   public final static String D_css = "css";
@@ -17,7 +21,7 @@ public class SystemSettings {
   public final static String D_web = "web";
   public final static String D_template = "template";
   public final static String D_sub_page = "page";
-  public final static String D_root = "/Documents/CMS/";
+  public final static String D_root = "/Documents/CMS/"; /* for mac */
   public final static String D_layout = "layout";
   public final static String D_layout_template = "CssTemplate";
   public final static String D_layout_xml = "CssXML";
@@ -51,6 +55,20 @@ public class SystemSettings {
     defaultLayout.put("blue", blueLayout);
     String[] roseLayout = {"#F2385A", "#FFFFFF", "#FFFFFF", "#F2F2F2", "#4f4f4f", "#333333"};
     defaultLayout.put("rose", roseLayout);
+  }
+  
+  public static Map<String, Category> getDefaultCategory() {
+    Map<String, Category> categories = new HashMap<String, Category>();
+    Category defaultCategory = new Category("Uncategorized");
+    Category defaultHiddenCategory = new Category("Hidden(Draft Model)");
+    SinglePage singlepage = new SinglePage("index.html");
+    singlepage.setDirectory("default");
+    singlepage.setTitle("Welcome!");
+    defaultCategory.addPageToList(singlepage);
+    categories.put(defaultCategory.getName(), defaultCategory);
+    categories.put(defaultHiddenCategory.getName(), defaultHiddenCategory);
+   
+    return categories;
   }
   
   

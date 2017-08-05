@@ -1,113 +1,75 @@
 package model.utility;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import system.SystemSettings;
-import system.data.Data;
-import system.data.SetPage;
-import system.data.SettingItem;
-import system.data.Settings;
-import system.data.SimplePage;
+import org.apache.commons.io.FileUtils;
+import system.data.PageCollection;
+import system.data.SinglePage;
 
 public class DataHelper {
 
-  /*
-   * @param settings the Web site settings from SystemManager class
-   * @param simplePage target from current data
-   * @return searching result(Optional type)
-   */
-  public Optional<SettingItem> searchSettingMenuItemBySimplePage(Settings settings, SimplePage simplePage) {
-    for(SettingItem settingItem : settings.getMenu()) {
-      String[] splitItemName = settingItem.getTargetURL().split("/");
-      int itemNameIndex = splitItemName.length - 1;
+  public static PageCollection retrievePage(String localPath) {
+    PageCollection pageCollection = new PageCollection();
+    String[] directoriesName = {"default", "page"}; 
     
-      if(splitItemName[itemNameIndex].equals(simplePage.getName())) {
-        return Optional.of(settingItem);
+    for(String directoryName : directoriesName) {
+      File directory = new File(localPath + "edit/" + directoryName);
+      File[] pageFiles = directory.listFiles(new PageNameFilter());
+      
+      try {
+        for(File pageFile : pageFiles) {
+          SinglePage page = new SinglePage(pageFile.getName());
+          page.setContent(FileUtils.readFileToString(pageFile, "UTF-8"));
+          page.setDirectory(directoryName);
+          pageCollection.put(pageFile.getName(), page);
+        }
       }
-    }
-    return Optional.empty();
-  }
-  
-  /*
-   * Use this function when data need to be initialized or refreshed.
-   */
-  public Data retrieveDataFromFiles(String localPath) {
-    Data data = new Data();
-    String rootDirectory = localPath + SystemSettings.D_edit + "/";
-    retrieveDataFromFile(data, rootDirectory, null);
-    return data;
-  }
-  
-  /*
-   * Search a target SimplePage from current data.
-   */
-  public Optional<SimplePage> searchSimplePageByName(Data data, String simpleName) {
-    List<SetPage> setPageList = data.getList();
-    List<SetPage> temp = new LinkedList<SetPage>();
-    
-    while(!setPageList.isEmpty()) {
-      for(SetPage setPage :setPageList) {
-        if(setPage.getChild() != null) {
-          temp.add(setPage.getChild());
-        }
-        for(SimplePage simplePage : setPage.getPageList()) {
-          if(simplePage.getName().equals(simpleName)) {
-            return Optional.of(simplePage);
-          }
-        }
+      catch(IOException exception) {
+        exception.printStackTrace();
       }
       
-      setPageList = temp.stream().collect(Collectors.toList());
-      temp.clear();
     }
-    
-    return Optional.empty();
+    return pageCollection;
   }
   
-  /*
-   * inner function for recursion of retrieve data.
-   */
-  private static void retrieveDataFromFile(Data data, String directoryPath, SetPage setPage) {
-    File directory = new File(directoryPath);
-    for(File file : directory.listFiles()) {
-      if(file.isDirectory()) {
-        SetPage newSetPage = new  SetPage(file.getName());
-        if(setPage != null) {
-          setPage.setChild(newSetPage);
-        }
-        else {
-          data.getList().add(newSetPage);
-        }
-        String subDirectoryPath = directoryPath + file.getName() + "/";
-        retrieveDataFromFile(data, subDirectoryPath, newSetPage);
+  public static void storePageToFile(String editLocalPath,SinglePage targetPage) {
+    String pagePath = editLocalPath + targetPage.getDirectory() + "/" + targetPage.getName();
+    File pageFile = new File(pagePath);
+    try {
+      if(!pageFile.exists()) {
+        pageFile.createNewFile();
       }
-      else if(file.getName().endsWith(".html")) {
-        SimplePage newSimplePage = new SimplePage(file.getName());
-        try(InputStream input = new FileInputStream(directoryPath + file.getName())) {
-          int byteData = 0;
-          String stringData = "";
-          
-          // Store to data content
-          while(byteData != -1){
-            byteData = input.read();
-            stringData = stringData + (char)byteData;
-          };
-          
-          newSimplePage.setPageContent(stringData);
-          setPage.AddPage(newSimplePage);
-        }
-        catch(IOException e) {
-          e.printStackTrace();
-        }
-      }
+      FileUtils.writeStringToFile(pageFile, targetPage.getContent(), "UTF-8");
     }
+    catch(IOException exception) {
+      exception.printStackTrace();
+    } 
+  }
+  
+  public static void deletePageFromFile(String editLocalPath,SinglePage targetPage) {
+    String pagePath = editLocalPath + "edit/page/" + targetPage.getName();
+    File pageFile = new File(pagePath);
+    if(pageFile.exists()) {
+      pageFile.delete();
+    }
+  }
+  
+  public static void deleteCategoryFile(String LocalPath, String categoryName) {
+    String filePath = LocalPath + "category/" + categoryName + ".xml";
+    File file = new File(filePath);
+    if(file.exists()) {
+      file.delete();
+    }
+  }
+ 
+  private static class PageNameFilter implements FilenameFilter {
+    @Override
+    public boolean accept(File dir, String name) {
+      if(name.contains(".DS_Store")) return false;
+      else return true;
+    }
+
   }
   
 }

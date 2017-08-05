@@ -1,6 +1,4 @@
 package view;
-import controller.UploadController;
-import controller.Controller;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,20 +8,25 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.control.TextArea;
+import system.DataCenter;
 import system.Statement;
+import system.data.FtpSettings;
 /*
  * @Author: Yu-Shuan
  *  */
 public class UploadView extends Dialog<Void> implements View {
 
-  Controller controller;
+  public static final String UPLOAD_PROCESS = "UPLOAD_PROCESS";
+  public static final String UPLOAD_INFO = "UPLOAD_INFO";
   /*
    * Required nodes of this view.
    * */
   private TextArea statementArea;
   private Button uploadButton;
+  private Button downloadButton;
   private TextField host;
   private TextField account;
   private PasswordField password;
@@ -34,15 +37,21 @@ public class UploadView extends Dialog<Void> implements View {
     subView.setAlignment(Pos.CENTER);
     subView.setHgap(10);
     subView.setVgap(10);
+    subView.setStyle("-fx-font-size: 12px;");
+    
+    String css = DataCenter.class.getResource("dialog.css").toExternalForm(); 
+    this.getDialogPane().getStylesheets().add(css);
     
     Label viewTitle = new Label("Login to Web server");
     Label hostLabel = new Label("Web Host ");
     Label accountLabel = new Label("account ");
     Label passwordLabel = new Label("password ");
     
-    host = new TextField("files.000webhost.com");
+    viewTitle.setId("upload-title");
+    
+    host = new TextField();
     host.setId("host");
-    account = new TextField("cherriesweb");
+    account = new TextField();
     account.setId("account");
     password = new PasswordField();
     password.setId("password");
@@ -50,11 +59,18 @@ public class UploadView extends Dialog<Void> implements View {
     uploadButton = new Button("Upload");
     uploadButton.setId("uploadButton");
     
-    uploadButton.setPrefWidth(250);
-    GridPane.setHalignment(uploadButton, HPos.CENTER);
-    GridPane.setHalignment(viewTitle, HPos.CENTER);
+    downloadButton = new Button("Download");
+    downloadButton.setId("downloadButton");
     
-    statementArea = new TextArea("Upload Statement:");
+    HBox hbox = new HBox();
+    uploadButton.setPrefWidth(125);
+    downloadButton.setPrefWidth(125);
+    GridPane.setHalignment(viewTitle, HPos.CENTER);
+    hbox.getChildren().addAll(uploadButton, downloadButton);
+    hbox.setAlignment(Pos.CENTER);
+    hbox.setSpacing(5);
+    
+    statementArea = new TextArea("[ Upload Statement ]");
     statementArea.setPrefWidth(350);
     statementArea.setEditable(false);
       
@@ -65,8 +81,9 @@ public class UploadView extends Dialog<Void> implements View {
     subView.add(account, 1, 2);
     subView.add(passwordLabel, 0, 3);
     subView.add(password, 1, 3);
-    subView.add(uploadButton, 0, 4, 2, 1);
+    subView.add(hbox, 0, 4, 2, 1);
     subView.add(statementArea, 2, 0, 1, 5);
+    subView.setId("upload");
 
     this.setTitle("Upload pages to Web server");
     this.getDialogPane().setContent(subView);
@@ -79,10 +96,21 @@ public class UploadView extends Dialog<Void> implements View {
 
   @Override
   public <T> void updateStatement(String instruction, Statement<T> statement){
-    if(instruction.equals(UploadController.UPLOAD_PROCESS) && statement.getResult()){
+    
+    if(!statement.getResult()){
+      return;
+    }
+    
+    if(instruction.equals(UPLOAD_PROCESS)){
       StringBuilder currentStatement = new StringBuilder(statementArea.getText()); 
       currentStatement.append("\n" + statement.getValue());
       statementArea.setText(currentStatement.toString());
+    }
+    else if(instruction.equals(UPLOAD_INFO)){
+      FtpSettings ftpSettings = (FtpSettings) statement.getValue();
+      host.setText(ftpSettings.getHost());
+      account.setText(ftpSettings.getAccount());
+      password.setText(ftpSettings.getPassword());
     }
   }
 
@@ -95,20 +123,5 @@ public class UploadView extends Dialog<Void> implements View {
   public Pane getPane() {
     return this.getDialogPane();
   }
-  
-  /*
-   * @return fields an array including the content of required fields with string type. 
-   */
-  public String[] getFieldsText() {
-    String[] fields = {host.getText(), account.getText(), password.getText()};
-    return fields;
-  }
-  
-  /*
-   * @return uploadButton an inner button of Web server login box.
-   *  */
-  public Button getButton() {
-    return uploadButton;
-  }
-  
+ 
 }

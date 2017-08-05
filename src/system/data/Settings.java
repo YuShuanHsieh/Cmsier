@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import model.utility.XmlHelper;
 import system.data.SettingItem;
 
 @XmlRootElement(name = "Settings")
@@ -83,13 +84,49 @@ public class Settings {
     return this.menu;
   }
   
-  public void addItemToMenu(SettingItem menuItem) {
-    for(SettingItem existingItem : menu) {
-      if(existingItem.getTargetURL().equals(menuItem.getTargetURL())) {
-       existingItem.setName(menuItem.getName());
-       return; 
+  public Boolean isLocalPathExist() {
+    if(localPath.trim().equals("") || localPath == null) {
+      return false;
+    }
+    return true;
+  }
+  
+  public void addItemToMenu(String customizedName, SinglePage page) {
+    
+    for(SettingItem menuItem :menu) {
+      if(menuItem.getFileName().equals(page.getName())) {
+        return;
       }
     }
-    menu.add(menuItem);
+    
+    SettingItem newMenuItem = new SettingItem();
+    newMenuItem.setFileName(page.getName());
+    newMenuItem.setName(customizedName);
+    newMenuItem.setTargetURL("./page/" + page.getName());
+    
+    menu.add(newMenuItem);
+    XmlHelper.writeSettingToXML(this);
   }
+  
+  public void removeItemFromMenu(SinglePage targetPage) {
+    for(SettingItem menuItem :menu) {
+      if(menuItem.getFileName().equals(targetPage.getName())) {
+        menu.remove(menuItem);
+        XmlHelper.writeSettingToXML(this);
+        return;
+      }
+    }
+  }
+  
+  public String getMenuItemName(String fileName) {
+    
+    for(SettingItem menuItem :menu) {
+      if(menuItem.fileName.equals(fileName)) {
+        return menuItem.name;
+      }
+    }
+    
+    return null;
+  }
+  
 }

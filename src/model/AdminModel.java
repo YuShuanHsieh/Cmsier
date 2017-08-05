@@ -5,9 +5,11 @@ import java.io.IOException;
 import view.AdminView;
 import model.render.Templatetor;
 import model.utility.XmlHelper;
+import model.utility.DataHelper;
 import system.Statement;
 import system.SystemSettings;
 import system.data.CSSXMLsettings;
+import system.data.Category;
 import system.data.Settings;
 
 public class AdminModel extends Model {
@@ -23,9 +25,7 @@ public class AdminModel extends Model {
   
   @Override
   public void init() {
-    xmlHelper = new XmlHelper();
-    settings = xmlHelper.retrieveSettingFromXML();
-    dataCenter.setSettings(settings);
+    settings = dataCenter.getSettings();
     view.updateStatement(AdminView.UPDATE_SETTINGS, Statement.success(settings));
     
     generateCssSetting();
@@ -53,16 +53,10 @@ public class AdminModel extends Model {
     if(title.trim().isEmpty()) {
       return false;
     }
-    else if(subTitle.trim().isEmpty()) {
-      return false;
-    }
     else if(localPath.trim().isEmpty()) { 
       return false;
     }
     else if(serverPath.trim().isEmpty()) {
-      return false;
-    }
-    else if(footer.trim().isEmpty()) {
       return false;
     }
     else {
@@ -73,12 +67,12 @@ public class AdminModel extends Model {
       settings.setLayout(layout); 
       settings.setFooter(footer);
     }
-    XmlHelper xmlHelper = new XmlHelper();
-    xmlHelper.writeSettingToXML(settings);
+    XmlHelper.writeSettingToXML(settings);
     return true;
   }
   
   public void modifyCssSetting(){
+    xmlHelper = new XmlHelper();
     xmlHelper.writeSettingToXML(cssSettings, settings);
     String tempPath = settings.getLocalPath() + cssPath + cssSettings.getName() + ".css";
     generateCssFile(tempPath);
@@ -150,6 +144,20 @@ public class AdminModel extends Model {
     }
     
     return cssSetting;
+  }
+  
+  public void addNewCategory(String categoryName) {
+    Category newCategory = new Category();
+    newCategory.setName(categoryName);
+    dataCenter.getCategory().put(categoryName, newCategory);
+    XmlHelper.writeCategoryToXML(newCategory, dataCenter.getSettings().getLocalPath() + "category/");
+  }
+  
+  public void editCategoryName(String newName, String originalName) {
+    Category targetCategory = dataCenter.getCategory().get(originalName);
+    targetCategory.setName(newName);
+    XmlHelper.writeCategoryToXML(targetCategory, dataCenter.getSettings().getLocalPath() + "category/");
+    DataHelper.deleteCategoryFile(dataCenter.getSettings().getLocalPath(), originalName);
   }
   
 }

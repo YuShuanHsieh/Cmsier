@@ -26,6 +26,7 @@ public class PreviewView extends Dialog<String> implements View {
 
   @Override
   public void init() {
+    webView.setZoom(0.8);
     ButtonType okayButton = new ButtonType("OK", ButtonData.OK_DONE);
     this.setTitle("Web page preview");
     this.getDialogPane().setContent(webView);

@@ -4,193 +4,121 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import model.utility.PathHelper;
 import model.utility.XmlHelper;
 import model.utility.DataHelper;
 import system.Statement;
 import system.SystemSettings;
-import system.data.Data;
-import system.data.Page;
-import system.data.SetPage;
-import system.data.SettingItem;
+import system.data.PageCollection;
 import system.data.Settings;
-import system.data.SimplePage;
+import system.data.SinglePage;
 import view.EditView;
+import system.data.Category;
 
 public class EditModel extends Model {
   
-  private DataHelper dataHelper;
   private XmlHelper xmlHelper;
-  private PathHelper pathHelper;
-  private Settings settings;
-  private Data data;
   
   public EditModel(){
-    dataHelper = new DataHelper();
-    dataHelper = new DataHelper();
     xmlHelper = new XmlHelper();
-    pathHelper = new PathHelper();
   }
   
   @Override
   public void init() {
-    
-    settings = xmlHelper.retrieveSettingFromXML();
-    
-    /* 
-     * Initialize the local path when user firstly start this application.
-     * */
-    File rootDirectory = new File(settings.getLocalPath());
-    if(!xmlHelper.isLocalPathExistingInXML() || !rootDirectory.exists()) {
-      String defaultDirectory = pathHelper.createDefaultDirectoy();
-      settings.setLocalPath(defaultDirectory);
-      xmlHelper.writeSettingToXML(settings);
-    }
-    
-    data = dataHelper.retrieveDataFromFiles(settings.getLocalPath());
-    dataCenter.setData(data);
+    Settings settings = xmlHelper.retrieveSettings();
     dataCenter.setSettings(settings);
     
-    view.updateStatement(EditView.UPDATE_LIST, Statement.success(data));
-    view.updateStatement(EditView.UPDATE_MENUITEM, Statement.success(settings));
+    Map<String, Category> categories = XmlHelper.retrieveCatetoryFromXML(settings.getLocalPath());
+    dataCenter.setCategory(categories);
+    
+    PageCollection pageCollection = DataHelper.retrievePage(settings.getLocalPath());
+    dataCenter.setData(pageCollection);
+    dataCenter.organize();
+    
+    view.updateStatement(EditView.SETUP_TREEVIEW, Statement.success(pageCollection));
   }
 
-  public boolean savePageContent(Object treeItem, String content, String customizedName) {
-    settings = dataCenter.getSettings();   
-    //Generator generator = new Generator();
-    String pathUrl = settings.getLocalPath() + SystemSettings.D_edit + "/";
+  public boolean savePageContent(SinglePage page, String content, String customizedName, Category category) {
     
-    Page page = (Page)treeItem;
-    if(page.getName().endsWith("html")){
-      try {
-        String clippedContent = clipTheContent(content);
-        ((SimplePage)page).setPageContent(clippedContent);
-        pathUrl = pathHelper.getPathFromSimplePage((SimplePage)page, settings, pathUrl);
-     
-        FileWriter writer = new FileWriter(pathUrl);
-        writer.write(clippedContent);
-        writer.close();
-  
-        if(((SimplePage)page).getChangeState()) {
-          if(customizedName != "") {
-            addMenuItemToSettingXML(customizedName, (SimplePage)page);
-          }
-          else {
-            removeMenuItemToSettingXML((SimplePage)page);
-          }
-        }
+    String pathUrl = dataCenter.getSettings().getLocalPath() + SystemSettings.D_edit + "/";
+
+    try {
+      String clippedContent = clipTheContent(content); 
+      page.setContent(clippedContent);
         
-        //generator.generateFinalPage( (SimplePage)page, data, settings, 0);
-        view.updateStatement(EditView.UPDATE_MENUITEM, Statement.success(settings));
+      pathUrl += page.getDirectory() + "/" + page.getName();
+     
+      FileWriter writer = new FileWriter(pathUrl);
+      writer.write(clippedContent);
+      writer.close();
+  
+      if(customizedName != "") {
+        dataCenter.getSettings().addItemToMenu(customizedName, page);
+        page.setIsOnMenu(true);
+      }
+      else {
+        dataCenter.getSettings().removeItemFromMenu(page);
+        page.setIsOnMenu(false);
+      }
+       
+      addPageToCategory(page, category);
 
       }catch(Exception e) {
         e.printStackTrace();
         return false;
       }      
-    }
+    
     
     return true;
   }
   
-  public void deleteExistingPage(Page page) {
+  private void addPageToCategory(SinglePage page, Category Category) {
+    /** Remove the original category before add. */
+    if(page.getCategory() != null && !page.getCategory().equals(Category)) {
+      dataCenter.removePageFromCategory(page.getName());
+    }
+    page.setCategory(Category);
+    Category.addPageToList(page);
+    XmlHelper.writeCategoryToXML(Category, dataCenter.getSettings().getLocalPath()+ "category/");
+  }
+  
+  public void deleteExistingPage(SinglePage page) {
     if(!page.toString().endsWith(".html")) {
       return;
     }
-    SimplePage targetSimplePage = (SimplePage)page;
-    
-    List<SetPage> pageList = data.getList();
-    List<SetPage> tempData = new LinkedList<SetPage>();
-    
-    deleteExistingPageFile(targetSimplePage);
-    removeMenuItemToSettingXML(targetSimplePage);
-    
-    while(!pageList.isEmpty()) {
+    dataCenter.removePageFromCategory(page.getName());
+    dataCenter.getData().removePage(page);
+    dataCenter.getSettings().removeItemFromMenu(page);
+    DataHelper.deletePageFromFile(dataCenter.getSettings().getLocalPath(), page);
+  }
+
+  public Optional<SinglePage> addNewPage(String fileName) {
+    if(!dataCenter.getData().isPageNameExist(fileName)) {
+      SinglePage newPage = new SinglePage(fileName + ".html");
+      newPage.setDirectory("page");
+      dataCenter.getData().addNewPage(newPage);
       
-      for(SetPage setPage : pageList) {
+      String mewPageFilePath = dataCenter.getSettings().getLocalPath() + "edit/page/" + fileName + ".html";
+      File newPageFile = new File(mewPageFilePath);
       
-        if(setPage.getChild() != null) {
-          tempData.add(setPage.getChild());
-        }
-        
-        for(SimplePage simplePage : setPage.getPageList()) {
-          if(simplePage == page){
-            setPage.getPageList().remove(simplePage);
-            view.updateStatement(EditView.UPDATE_LIST, Statement.success(data));
-            return;
-          }
+      try {
+        if(!newPageFile.exists()) {
+          newPageFile.createNewFile();
         }
       }
-      pageList = tempData.stream().collect(Collectors.toList());
-      tempData.clear();
+      catch(IOException exception) {
+        exception.printStackTrace();
+      }
+      view.updateStatement(EditView.UPDATE_TREEVIEW_ADD, Statement.success(newPage));
+      return Optional.of(newPage);
     }
-  }
-  
-  private void deleteExistingPageFile(SimplePage page) {
-    String localFullPath = dataCenter.getSettings().getLocalPath() + SystemSettings.D_edit + "/";
-    String filePath = pathHelper.getPathFromSimplePage(page, settings, localFullPath);
-    File file = new File(filePath);
-    if(file.exists()){
-      file.delete();
-    }
-  }
-  
-  public void addNewSimplePage(SetPage setPage, String fileName) {
-    String fullFileName = fileName.trim() + ".html";
-    String defaultEditPath = dataCenter.getSettings().getLocalPath() + SystemSettings.D_edit +"/";
-    Deque<SetPage> stack = new LinkedList<SetPage>();
-    
-    if(data.isExistingPage(2, fullFileName)) {
-      return;
-    }
-    // Add new SimplePage to current Data;
-    SimplePage newSimplePage = new SimplePage(fullFileName);
-    setPage.AddPage(newSimplePage);
-    
-    while(setPage != null) {
-      stack.push(setPage);
-      setPage = setPage.getParent();
-    }
-    
-    while(!stack.isEmpty()) {
-      defaultEditPath = defaultEditPath + stack.pop().getName() + "/";
-    }
-   
-    try{
-      File newFile = new File(defaultEditPath + fullFileName);
-      newFile.createNewFile(); 
-      view.updateStatement(EditView.UPDATE_LIST, Statement.success(data));
-    } 
-    catch(IOException e) {
-      e.printStackTrace();
-    }
-  }
-  
-  private void addMenuItemToSettingXML(String itemName, SimplePage simplePage) {
-    String publishedUrl = "./";
-    SettingItem newMenuItem = new SettingItem();
-    publishedUrl = pathHelper.getPathFromSimplePage(simplePage, settings, publishedUrl);
-    newMenuItem.setName(itemName);
-    newMenuItem.setTargetURL(publishedUrl);
-    settings.addItemToMenu(newMenuItem);
-    xmlHelper.writeSettingToXML(settings);
-  }
-  
-  private void removeMenuItemToSettingXML(SimplePage simplePage) {
-    Optional<SettingItem> removeSettingItem = dataHelper.searchSettingMenuItemBySimplePage(settings, simplePage);
-    
-    if(removeSettingItem.isPresent()) {
-      settings.getMenu().remove(removeSettingItem.get());
-      xmlHelper.writeSettingToXML(settings);
+    else {
+      return Optional.empty();
     }
   }
   
   private String clipTheContent(String content) {
-    content = content.replaceAll("<h1><font[^>]+size=[^>]+[\"]>", "<h1 class = \"content-title\"><font>");
     content = content.replaceAll("<h2><font[^>]+size=[^>]+[\"]>", "<h2 class = \"content-title-sub\"><font>");
     
     content = clipHTMLContent(content);
@@ -210,7 +138,7 @@ public class EditModel extends Model {
   
   public String imageStore(String content) {
     
-    String clip = "<img src=\"file://";
+    String clip = "<img style=\"max-width:100%;\" src=\"file://";
     StringBuilder stringBuilder = new StringBuilder(content);
     int startIndex = 0;
     
@@ -226,7 +154,7 @@ public class EditModel extends Model {
         String fileName = splitFile[splitFile.length -1];
         
         File originalFile = new File(filePah);
-        String imgUploadPath = settings.getLocalPath() + SystemSettings.D_upload + "/";
+        String imgUploadPath = dataCenter.getSettings().getLocalPath() + SystemSettings.D_upload + "/";
         File newFile = new File(imgUploadPath + fileName);
         
         try{

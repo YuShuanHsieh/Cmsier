@@ -6,9 +6,14 @@ public class SettingItem {
 
   String name;
   String targetURL;
+  String fileName;
 
   public void setName(String name) {
     this.name = name;
+  }
+  
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
   }
   
   public void setTargetURL(String targetURL) {
@@ -17,6 +22,10 @@ public class SettingItem {
   
   public String getName() {
     return this.name;
+  }
+  
+  public String getFileName() {
+    return this.fileName;
   }
   
   public String getTargetURL() {

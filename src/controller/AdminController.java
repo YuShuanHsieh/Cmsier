@@ -1,12 +1,21 @@
 package controller;
-
+/**
+ * @see AdminView
+ * @see AdminModel
+ *  */
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.TilePane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import model.AdminModel;
 import view.AdminView;
 import view.AdminView.Filed;
@@ -14,9 +23,23 @@ import java.io.File;
 
 public class AdminController extends Controller {
   
+  private  TilePane existingCategories;
+  private TextField editNameField;
+  private TextField addNameField;
+  private Button addCategoryButton;
+  private Button editCategoryButton;
+  private Label selectedCategory;
+  
+  /** It would require to invoke a update method of parent controller when user modify some configuration.*/
+  private EditController parent;
+    
   public AdminController() {
     view = new AdminView();
     model = new AdminModel();
+  }
+  
+  public void setParent(EditController parent) {
+    this.parent = parent;
   }
   
   @Override
@@ -25,6 +48,12 @@ public class AdminController extends Controller {
     
     view.init(); 
     model.init();
+    
+    existingCategories = (TilePane)view.getPane().lookup("#setting-category-existing-list");
+    editNameField = (TextField)view.getPane().lookup("#setting-category-edit");
+    addCategoryButton = (Button)view.getPane().lookup("#setting-category-add-button");
+    addNameField = (TextField)view.getPane().lookup("#setting-category-add");
+    editCategoryButton = (Button)view.getPane().lookup("#setting-category-edit-button");
     
     setEvent();
  
@@ -37,6 +66,14 @@ public class AdminController extends Controller {
     AdminView castView = (AdminView)view; 
     
     castView.getBrowseButton().setOnMousePressed(this::browseLocalPathEvent);
+    
+    castView.getCategoryTab().setOnSelectionChanged(value -> {
+      if(existingCategories.getChildren().isEmpty()) {
+        castView.setUpExistingCategory(dataCenter.getCategory().values());
+        setUpExistingCategoriteEvent();
+      }
+    });
+    
     allocateColorPickerEvent(AdminView.CSSCOLOR_HEADER);
     allocateColorPickerEvent(AdminView.CSSCOLOR_TITLE);
     allocateColorPickerEvent(AdminView.CSSCOLOR_SUBTITLE);
@@ -44,12 +81,16 @@ public class AdminController extends Controller {
     allocateColorPickerEvent(AdminView.CSSCOLOR_CONTENT);
     allocateColorPickerEvent(AdminView.CSSCOLOR_FRAME);
     
+    addCategoryButton.setOnAction(this::addNewCategoryEvent);
+    editCategoryButton.setOnAction(this::editCategoryEvent);
+    
     ChoiceBox<String> choiceBox = castView.getLayoutBox();
     choiceBox.setOnAction(event -> {
       String selectedLayout = choiceBox.getSelectionModel().getSelectedItem();
       dataCenter.getSettings().setLayout(selectedLayout);
       castModel.changeLayout();
     });
+    
     
     castView.setResultConverter(button -> {
       if(button.getButtonData() == ButtonData.OK_DONE) {
@@ -65,11 +106,11 @@ public class AdminController extends Controller {
         if(selectedLayout == null) {
           selectedLayout = "blue";
         }
-        
         castModel.modifySettingsField(title, subTitle, localPath, serverPath, selectedLayout,footer);
         castModel.modifyCssSetting();
        
       }
+      parent.updateCacheData();
       return null;
     });
   }
@@ -114,6 +155,54 @@ public class AdminController extends Controller {
     }
     Stage stage = (Stage) castView.getDialogPane().getScene().getWindow();
     stage.toFront();
+  }
+  
+  private void setUpExistingCategoriteEvent() {
+    for(Node node : existingCategories.getChildren()) {
+      node.setOnMousePressed(new EventHandler<MouseEvent>() {
+        public void handle(MouseEvent event) {
+          Label targetCategory = (Label) event.getSource();
+          editNameField.setText(targetCategory.getText());
+          selectedCategory = targetCategory;
+        }
+      });
+    }
+  }
+  
+  private void addNewCategoryEvent(ActionEvent event) {
+    if(addNameField.getText().trim().isEmpty()) {
+      // add some error message
+      return;
+    }
+    
+    String name = addNameField.getText().trim();
+    if(!dataCenter.isCategoryExist(name)) {
+      ((AdminModel)model).addNewCategory(name);
+      Label newCategory = new Label(name);
+      newCategory.setId("setting-category-item");
+      
+      newCategory.setOnMousePressed(new EventHandler<MouseEvent>() {
+        public void handle(MouseEvent event) {
+          Label targetCategory = (Label) event.getSource();
+          editNameField.setText(targetCategory.getText());
+          selectedCategory = targetCategory;
+        }
+      });
+      existingCategories.getChildren().add(newCategory);
+    }
+  }
+  
+  private void editCategoryEvent(ActionEvent event) {
+    String newName = editNameField.getText().trim();
+    if(selectedCategory == null || newName.isEmpty()) {
+      // add some error message
+      return;
+    }
+    else if(newName.equals(selectedCategory.getText())) {
+      return;
+    }
+    ((AdminModel)model).editCategoryName(newName, selectedCategory.getText());
+    selectedCategory.setText(newName);
   }
   
 }

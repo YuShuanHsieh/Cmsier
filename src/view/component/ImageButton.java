@@ -25,8 +25,8 @@ public class ImageButton extends Button {
     VBox buttonFrame = new VBox(5);
     buttonFrame.setAlignment(Pos.CENTER); 
     buttonText = new Text(ImgTitle);
-    buttonText.setFill(Color.GRAY);
-    buttonText.setFont(new Font(10));
+    buttonText.setFill(Color.web("#60c8aa"));
+    buttonText.setFont(new Font(12));
     imgView = new ImageView();
     imgView.setImage(normal);
     buttonFrame.getChildren().addAll(imgView, buttonText);
@@ -37,11 +37,11 @@ public class ImageButton extends Button {
   
   private void onMouseMoveOutEvent(MouseEvent event) {
     imgView.setImage(normal);
-    buttonText.setFill(Color.GRAY);
+    buttonText.setFill(Color.web("#60c8aa"));
   }
   
   private void onMouseMoveOnEvent(MouseEvent event) {
     imgView.setImage(active);
-    buttonText.setFill(Color.web("#004a80"));
+    buttonText.setFill(Color.web("#E64C66"));
   }
 }

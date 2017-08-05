@@ -1,6 +1,7 @@
 package view;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.TilePane;
 import system.data.Settings;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -8,6 +9,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import java.util.Collection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -22,8 +24,15 @@ import javafx.scene.web.WebView;
 import system.DataCenter;
 import system.Statement;
 import system.data.CSSXMLsettings;
+import system.data.Category;
 import javafx.concurrent.Worker.State;
+import javafx.event.ActionEvent;
 import javafx.concurrent.Worker;
+
+/**
+ * There are three Tab sections of this view, including: General setting, Layout setting, and Category Setting.
+ * @author yu-shuan
+ */
 
 public class AdminView extends Dialog<String> implements View {
 
@@ -32,6 +41,7 @@ public class AdminView extends Dialog<String> implements View {
   private TextField localPath;
   private TextField serverPath;
   private TextField footerField;
+  private TextField editCategory;
   private Button localPathBrowseButton;
   private ChoiceBox<String> layoutBox;
   private WebView webView;
@@ -43,6 +53,8 @@ public class AdminView extends Dialog<String> implements View {
   private ColorPicker contentColorPick;
   private ColorPicker frameColorPick;
   private Image settingIcon;
+  private TilePane existingCategory;
+  private Tab categorySettingTab;
   
   public static final String CSSCOLOR_HEADER = "headerColor";
   public static final String CSSCOLOR_TITLE = "titleColor";
@@ -66,7 +78,7 @@ public class AdminView extends Dialog<String> implements View {
   public void init() { 
     settingIcon = new Image(View.class.getResourceAsStream("img/gear.png"));
     this.getDialogPane().setStyle("-fx-font-size: 12px;");
-    String css = DataCenter.class.getResource("layout.css").toExternalForm(); 
+    String css = DataCenter.class.getResource("dialog.css").toExternalForm(); 
     this.getDialogPane().getStylesheets().add(css);
     
     
@@ -78,28 +90,29 @@ public class AdminView extends Dialog<String> implements View {
     grid.setHgap(10);
     grid.setVgap(10);
     grid.setPadding(new Insets(10));
+    grid.setId("setting-general");
     
     this.setTitle("Web Site Settings");
     this.setResizable(true);
     
-    Label titleLabel = new Label("Title");
+    Label titleLabel = new Label("Title (required)");
     titleInput = new TextField();
     titleInput.setPrefWidth(350);
     titleLabel.setGraphic(new ImageView(settingIcon));
 
-    Label subTitleLabel = new Label("Sub Title");
+    Label subTitleLabel = new Label("Subtitle");
     subTitleInput = new TextField();
     subTitleInput.setPrefWidth(350);
     subTitleLabel.setGraphic(new ImageView(settingIcon));
     
-    Label localPathLabel = new Label("Local Path");
+    Label localPathLabel = new Label("Local Path (required)");
     localPath = new TextField();
     localPath.setPrefWidth(350);
     localPathLabel.setGraphic(new ImageView(settingIcon));
     
     localPathBrowseButton = new Button("Browse");
     
-    Label serverPathLabel = new Label("Web site address");
+    Label serverPathLabel = new Label("Web site address (required)");
     serverPath = new TextField();
     serverPath.setPrefWidth(350);
     serverPathLabel.setGraphic(new ImageView(settingIcon));
@@ -126,14 +139,14 @@ public class AdminView extends Dialog<String> implements View {
     
     webView = new WebView();
     webEngine = webView.getEngine();
-    webView.setPrefWidth(350);
+    webView.setPrefWidth(380);
     webView.setPrefHeight(200);
     webView.setZoom(0.5);
     
     /* Reload the web page when a new page load into webEngine in order to update its CSS file. */
     webEngine.getLoadWorker().stateProperty().addListener(
         new ChangeListener<State>() {
-          @Override public void changed(ObservableValue ov, State oldState, State newState) {
+          @Override public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, State oldState, State newState) {
             if (!isWebPageUpdate && newState == Worker.State.SUCCEEDED) {
               webEngine.reload();
               isWebPageUpdate = true;
@@ -200,14 +213,73 @@ public class AdminView extends Dialog<String> implements View {
     layoutGrid.add(frameColorLabel, 0, 6);
     layoutGrid.add(frameColorPick, 1, 6);
     layoutGrid.add(webView, 2, 0, 1, 8);
+    layoutGrid.setId("setting-layout");
     
     layoutGrid.setPadding(new Insets(10));
     layoutSettingTab.setContent(layoutGrid);
     tabPane.getTabs().add(layoutSettingTab);
     tabPane.setCache(false);
     
+    GridPane categoryGrid = new GridPane();
+    Label newCategoryLabel = new Label("Add New Category");
+    newCategoryLabel.setGraphic(new ImageView(settingIcon));
+    TextField newCategory = new TextField();
+    newCategory.setId("setting-category-add");
+    Button newCategoryButton = new Button("Submit");
+    newCategoryButton.setId("setting-category-add-button");
+    
+    Label editCategoryLabel = new Label("Edit Name");
+    editCategoryLabel.setGraphic(new ImageView(settingIcon));
+    editCategory = new TextField();
+    editCategory.setId("setting-category-edit");
+    Button editCategoryButton = new Button("Submit");
+    editCategoryButton.setId("setting-category-edit-button");
+    
+    Label existingCategoryLabel = new Label("Existing Categories");
+    existingCategoryLabel.setGraphic(new ImageView(settingIcon));
+    
+    existingCategory = new TilePane();
+    existingCategory.setId("setting-category-existing-list");
+    existingCategory.setHgap(5);
+    existingCategory.setVgap(5);
+    existingCategory.setPrefColumns(4);
+    existingCategory.setPrefWidth(300);
+   
+    categoryGrid.add(newCategoryLabel, 0, 0, 2, 1);
+    categoryGrid.add(newCategory, 0, 1);
+    categoryGrid.add(newCategoryButton, 1, 1);
+    categoryGrid.add(editCategoryLabel, 0, 2, 2, 1);
+    categoryGrid.add(editCategory, 0, 3);
+    categoryGrid.add(editCategoryButton, 1, 3);
+    categoryGrid.add(existingCategoryLabel, 2, 0);
+    categoryGrid.add(existingCategory, 2, 1, 1, 10);
+    categoryGrid.setId("setting-category");
+    categoryGrid.setVgap(5);
+    categoryGrid.setHgap(10);
+    
+    categorySettingTab = new Tab("Categories");
+    categorySettingTab.setClosable(false);
+    categorySettingTab.setContent(categoryGrid);
+    tabPane.getTabs().add(categorySettingTab);
+    categorySettingTab.setId("setting-category-tab");
+    
     this.getDialogPane().setContent(tabPane);
     this.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
+    
+    this.getDialogPane().lookupButton(ButtonType.OK).addEventFilter(ActionEvent.ACTION, event -> {
+      if (localPath.getText().trim().isEmpty()) {
+        localPath.requestFocus();
+        event.consume();
+      }
+      else if(serverPath.getText().trim().isEmpty()){
+        serverPath.requestFocus();
+        event.consume();
+      }
+      else if(titleInput.getText().trim().isEmpty()){
+        titleInput.requestFocus();
+        event.consume();
+      }
+    });
   }
     
   @Override
@@ -245,6 +317,9 @@ public class AdminView extends Dialog<String> implements View {
     this.showAndWait();
   }
   
+  /**
+   * Some lazy methods to fetch required nodes.
+   */
   public TextField getField(Filed type) {
     switch(type) {
       case title :
@@ -270,6 +345,14 @@ public class AdminView extends Dialog<String> implements View {
     return this.localPathBrowseButton;
   }
   
+  public Tab getCategoryTab() {
+    return this.categorySettingTab;
+  }
+  
+  
+  /**
+   * The methods below are update the content of nodes.
+   */
   private void updateSettings(Settings setting) {
     titleInput.setText(setting.getTitle());
     subTitleInput.setText(setting.getSubTitle());
@@ -288,4 +371,12 @@ public class AdminView extends Dialog<String> implements View {
     frameColorPick.setValue(Color.web(cssSettings.getFrameColor()));
   }
   
+  public void setUpExistingCategory(Collection<Category> categories) {
+    for(Category category : categories) {
+      Label newCategory = new Label(category.getName());
+      newCategory.setId("setting-category-item");
+      existingCategory.getChildren().add(newCategory);
+    }
+  }
+    
 }

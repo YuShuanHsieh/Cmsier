@@ -7,11 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public abstract class Page {
 
   protected String name;
-  
-  public Page(){
-    
-  }
-  
+
+ 
   public Page(String name){
     this.name = name;
   }

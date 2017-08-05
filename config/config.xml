@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Settings>
+    <Menu>
+        <MenuItem>
+            <fileName>index.html</fileName>
+            <name>Home</name>
+            <targetURL>./index.html</targetURL>
+        </MenuItem>
+        <MenuItem>
+            <fileName>test2.html</fileName>
+            <name>Life</name>
+            <targetURL>./page/test2.html</targetURL>
+        </MenuItem>
+    </Menu>
+    <footer>@ copy right.</footer>
+    <layout>blue</layout>
+    <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
+    <publish>https://cherriesweb.000webhostapp.com/</publish>
+    <subTitle>My websites</subTitle>
+    <title>My First Application</title>
+</Settings>

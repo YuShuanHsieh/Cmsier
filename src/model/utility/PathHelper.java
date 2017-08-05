@@ -4,26 +4,24 @@
   */
 package model.utility;
 import system.SystemSettings;
-import system.data.SetPage;
 import system.data.Settings;
-import system.data.SimplePage;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
 
 public class PathHelper {
   /*
    * @see SystemSettings 
    */
   private static final String[] defaultDirectories = {
+      SystemSettings.D_config,
       SystemSettings.D_draft, SystemSettings.D_draft + "/" + SystemSettings.D_sub_page + "/", 
       SystemSettings.D_edit, SystemSettings.D_upload,
       SystemSettings.D_web, SystemSettings.D_web + "/" + SystemSettings.D_sub_page + "/",
@@ -32,7 +30,7 @@ public class PathHelper {
       SystemSettings.D_layout + "/" + SystemSettings.D_layout_preview + "/"
       };
   
-  public String createDefaultDirectoy(){
+  public static String createDefaultDirectoy(){
     String homeDirectory = System.getProperty("user.home");
     String rootDirectoryPath = homeDirectory + SystemSettings.D_root;
     File rootDirectory = new File(rootDirectoryPath);
@@ -50,70 +48,19 @@ public class PathHelper {
         }
       } 
       
-      copyInnerDirdctoryToLocalPath(rootDirectoryPath, SystemSettings.D_css + "/");
-      copyInnerDirdctoryToLocalPath(rootDirectoryPath, SystemSettings.D_edit + "/");
-      copyInnerFileToLocalPath(rootDirectoryPath, "", SystemSettings.configXMLFile);
+      FileUtils.copyDirectory(new File(SystemSettings.D_css + "/"), rootDirectory);
+      FileUtils.copyDirectory(new File(SystemSettings.D_edit + "/"), rootDirectory);
+      FileUtils.copyDirectory(new File(SystemSettings.D_config + "/"), rootDirectory);
+      
+      //copyInnerDirdctoryToLocalPath(rootDirectoryPath, SystemSettings.D_css + "/");
+      //copyInnerDirdctoryToLocalPath(rootDirectoryPath, SystemSettings.D_edit + "/");
+      //copyInnerDirdctoryToLocalPath(rootDirectoryPath, SystemSettings.D_config + "/");
       
     }catch(Exception e) {
       e.printStackTrace();
       return null;
     }
     return rootDirectoryPath;
-  }
-  
-  /* !!Notice: ignore the default folder.
-   * @param directoryPath representing to a specific parent folder. such as web/
-   */
-  public String getPathFromSimplePage(SimplePage simplePage,Settings settings, String directoryPath) {
-    Deque<SetPage> stack = new LinkedList<SetPage>();
-    SetPage setPage = simplePage.getParent();
-    
-    while(setPage != null) {
-      if(directoryPath.equals(settings.getLocalPath() + SystemSettings.D_edit + "/") || !setPage.getName().equals("default"))
-      stack.push(setPage);
-      setPage = setPage.getParent();
-    }
-    
-    while(!stack.isEmpty()) {
-      directoryPath = directoryPath + stack.pop().getName() + "/";
-    }
-    
-    return directoryPath + simplePage.getName();
-  }
-  
-  public boolean checkPathFromSimplePage(SimplePage simplePage, int type) {
-    
-    String pathUrl = "";
-    
-    if(type == 1){
-      pathUrl = SystemSettings.D_web + "/";
-    }
-    else {
-      pathUrl = SystemSettings.D_draft + "/";
-    }
-    
-    Deque<SetPage> stack = new LinkedList<SetPage>();
-    SetPage setPage = simplePage.getParent();
-    
-    while(setPage != null && !setPage.getName().equals(SystemSettings.D_draft)) {
-      stack.push(setPage);
-      setPage = setPage.getParent();
-    }
-    
-    while(!stack.isEmpty()) {
-      pathUrl = pathUrl + stack.pop().getName() + "/";
-      
-      try{
-        if(!Files.exists(Paths.get(pathUrl))){
-          Files.createDirectories(Paths.get(pathUrl));
-        }
-      } catch(Exception e) {
-        e.printStackTrace();
-        return false;
-      }
-    }
-    
-   return true; 
   }
   
   public void deleteFilesFromDirectory(String directoryPath) {
@@ -153,6 +100,7 @@ public class PathHelper {
     }
   }
   
+  /*
   private static void copyInnerDirdctoryToLocalPath(String localPath, String innerPath) {
     List<File> fileList;
     List<File> temp = new ArrayList<File>();
@@ -188,7 +136,7 @@ public class PathHelper {
       temp.clear();
     }
   }
-  
+  */
   private static void copyInnerFileToLocalPath(String localPath, String innerPath, String filName){
     File innerFile = new File(innerPath + filName);
     File localFile = new File(localPath + filName);

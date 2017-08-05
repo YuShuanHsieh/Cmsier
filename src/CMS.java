@@ -17,7 +17,8 @@ public class CMS extends Application {
 	  controller.setDataCenter(dataCenter);
 	  controller.init();
 	  
-		Scene scene = new Scene(controller.getView(), 1000, 600);
+	  /** In this project, it uses fixed size of window.*/
+		Scene scene = new Scene(controller.getView(), 1000, 750);
 		primaryStage.setTitle("Content Management System For Non-CS users");
 		primaryStage.setScene(scene);
 		primaryStage.show();

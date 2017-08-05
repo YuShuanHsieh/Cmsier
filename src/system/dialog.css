@@ -1,4 +1,69 @@
-/* CSS style for all components. */
+.root{
+	-fx-background-color:#2D3E50;
+}
+.button{
+	-fx-background-color:#60c8aa;
+	-fx-padding: 5 10 5 10;	
+}
+.button:hover{
+	-fx-background-color:#E64C66;	
+}
+.tab-pane{
+	-fx-tab-min-width:90px;
+	-fx-background-color:#FFFFFF;
+	-fx-faint-focus-color:transparent;
+}
+.tab {
+	-fx-background-insets: 0 1 0 1,0,0;
+	-fx-background-color:#727272;
+	-fx-faint-focus-color:transparent;
+	
+}
+.tab .tab-label{
+	-fx-text-fill:#FFFFFF;
+	-fx-font-weight: bold;
+}
+
+*.tab-header-background, *.tab-header-area{
+	-fx-background-color:#FFFFFF;
+}
+#setting-general, #setting-layout, #setting-category{
+	-fx-background-color:#FFFFFF;
+	-fx-border-width: 2 0 0 0;
+	-fx-border-color: #E64C66;
+}
+#setting-category {
+	-fx-padding: 15 10 20 10;
+}
+#upload{
+	-fx-background-color:#FFFFFF;
+	-fx-padding: 15 10 20 10;
+}
+.tab-pane .tab:selected
+{
+    -fx-background-color: #E64C66;
+}
+.text-field, .text-area, .content {
+	-fx-background-color:#F2F2F2;
+	-fx-padding: 7 10 7 10;
+}
+
+#upload-title{
+	-fx-text-fill:#E64C66;
+}
+
+.color-picker, .choice-box{
+	-fx-background-color:#F2F2F2;
+	-fx-padding: 2 5 2 5;
+}
+#setting-category-item{
+	-fx-background-color:#F2F2F2;
+	-fx-padding: 5 10 5 10;
+	-fx-border-radius: 5;
+	-fx-border-width: 0;
+}
+
+/* CSS style for all components. 
 
 #edit-view {
 	-fx-background-color:#FFFFFF;
@@ -117,3 +182,4 @@ TextField:focused{
 	-fx-border-radius: 5;
 	-fx-background-radius: 5;
 }
+*/
