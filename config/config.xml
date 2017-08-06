@@ -6,11 +6,6 @@
             <name>Home</name>
             <targetURL>./index.html</targetURL>
         </MenuItem>
-        <MenuItem>
-            <fileName>test2.html</fileName>
-            <name>Life</name>
-            <targetURL>./page/test2.html</targetURL>
-        </MenuItem>
     </Menu>
     <footer>@ copy right.</footer>
     <layout>blue</layout>

@@ -1,5 +1,6 @@
 package controller;
 /**
+ * Admin - providing some configuring methods that helps user customized their web sites.
  * @see AdminView
  * @see AdminModel
  *  */
@@ -67,6 +68,7 @@ public class AdminController extends Controller {
     
     castView.getBrowseButton().setOnMousePressed(this::browseLocalPathEvent);
     
+    /** Set up a category view as user taps the tab.*/
     castView.getCategoryTab().setOnSelectionChanged(value -> {
       if(existingCategories.getChildren().isEmpty()) {
         castView.setUpExistingCategory(dataCenter.getCategory().values());
@@ -90,7 +92,6 @@ public class AdminController extends Controller {
       dataCenter.getSettings().setLayout(selectedLayout);
       castModel.changeLayout();
     });
-    
     
     castView.setResultConverter(button -> {
       if(button.getButtonData() == ButtonData.OK_DONE) {
@@ -171,7 +172,7 @@ public class AdminController extends Controller {
   
   private void addNewCategoryEvent(ActionEvent event) {
     if(addNameField.getText().trim().isEmpty()) {
-      // add some error message
+      // add some error messages.
       return;
     }
     
@@ -195,7 +196,7 @@ public class AdminController extends Controller {
   private void editCategoryEvent(ActionEvent event) {
     String newName = editNameField.getText().trim();
     if(selectedCategory == null || newName.isEmpty()) {
-      // add some error message
+      // add some error messages.
       return;
     }
     else if(newName.equals(selectedCategory.getText())) {

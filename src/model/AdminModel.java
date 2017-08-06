@@ -1,5 +1,11 @@
 package model;
 
+/**
+ * Admin - providing some configuring methods that helps user customized their web sites.
+ * @see AdminController
+ * @see AdminView
+ *  */
+
 import java.io.File;
 import java.io.IOException;
 import view.AdminView;

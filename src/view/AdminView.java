@@ -30,10 +30,10 @@ import javafx.event.ActionEvent;
 import javafx.concurrent.Worker;
 
 /**
- * There are three Tab sections of this view, including: General setting, Layout setting, and Category Setting.
- * @author yu-shuan
- */
-
+ * Admin - providing some configuring methods that helps user customized their web sites.
+ * @see AdminController
+ * @see AdminModel
+ *  */
 public class AdminView extends Dialog<String> implements View {
 
   private TextField titleInput;
@@ -68,6 +68,7 @@ public class AdminView extends Dialog<String> implements View {
   public static final String UPDATE_RELOADPAGE = "UPDATE_RELOADPAGE";
   public static final String UPDATE_LOADPAGE = "UPDATE_LOADPAGE";
   
+  /** Using to reload the webview in order to avoid cache.*/
   private boolean isWebPageUpdate = false;
   
   public enum Filed{
@@ -143,7 +144,7 @@ public class AdminView extends Dialog<String> implements View {
     webView.setPrefHeight(200);
     webView.setZoom(0.5);
     
-    /* Reload the web page when a new page load into webEngine in order to update its CSS file. */
+    /** Using to reload the webview in order to avoid cache.*/
     webEngine.getLoadWorker().stateProperty().addListener(
         new ChangeListener<State>() {
           @Override public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, State oldState, State newState) {
@@ -242,8 +243,8 @@ public class AdminView extends Dialog<String> implements View {
     existingCategory.setId("setting-category-existing-list");
     existingCategory.setHgap(5);
     existingCategory.setVgap(5);
-    existingCategory.setPrefColumns(4);
-    existingCategory.setPrefWidth(300);
+    existingCategory.setPrefColumns(3);
+    existingCategory.setPrefWidth(380);
    
     categoryGrid.add(newCategoryLabel, 0, 0, 2, 1);
     categoryGrid.add(newCategory, 0, 1);
@@ -266,6 +267,7 @@ public class AdminView extends Dialog<String> implements View {
     this.getDialogPane().setContent(tabPane);
     this.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
     
+    /** If some field are empty, this dialog window would not be closed. */
     this.getDialogPane().lookupButton(ButtonType.OK).addEventFilter(ActionEvent.ACTION, event -> {
       if (localPath.getText().trim().isEmpty()) {
         localPath.requestFocus();
@@ -374,6 +376,7 @@ public class AdminView extends Dialog<String> implements View {
   public void setUpExistingCategory(Collection<Category> categories) {
     for(Category category : categories) {
       Label newCategory = new Label(category.getName());
+      newCategory.prefWidthProperty().bind(existingCategory.widthProperty().divide(3));
       newCategory.setId("setting-category-item");
       existingCategory.getChildren().add(newCategory);
     }
