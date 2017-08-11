@@ -5,11 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-//import org.apache.commons.net.ftp.FTPFile;
+import java.io.FilenameFilter;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
@@ -43,12 +41,12 @@ public class UploadModel extends Model {
 
   public boolean connectToWebServer(String host, String account, String password) {
     try{
-      view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Start to connect to server."));
+      //view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Start to connect to server."));
       ftpClient.connect(host, 21);
       ftpClient.login(account, password);
       
       if(ftpClient.getReplyCode() == 530) {
-        view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connot connect to server."));
+        //view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connot connect to server."));
         
       }
       else {
@@ -56,7 +54,7 @@ public class UploadModel extends Model {
         ftpClient.changeWorkingDirectory("/" + SystemSettings.D_ftp);
         ftpClient.enterLocalPassiveMode();
         ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-        view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connect to Web server successfully."));
+        //view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connect to Web server successfully."));
         return true;
       }
       
@@ -79,74 +77,83 @@ public class UploadModel extends Model {
   }
 
   public boolean uploadFinalPageFile() {
-    //String localPath = dataCenter.getSettings().getLocalPath();
-    List<String> directoryList = new LinkedList<String>();
-    List<String> tempList = new LinkedList<String>();
-    String pathName;
-    String publishPath;
-    String ftpPath = "/"+SystemSettings.D_ftp+"/";
-    
-    directoryList.add(SystemSettings.D_edit);
-    directoryList.add(SystemSettings.D_css);
-    directoryList.add(SystemSettings.D_web);
-    directoryList.add(SystemSettings.D_upload);
-    
     view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Start to upload Web pages to server."));
-    /* Upload directory to Web server */
-    while(true){
-      for(String directoryName : directoryList){
-        pathName = directoryName + "/";
-        publishPath = pathName;
-        File directory = new File(localRootPath + pathName);
-        File[] files = directory.listFiles();
-      
-        for(File file : files) {
-      
-          if(file.isDirectory() && file.getName().matches("[a-zA-Z0-9\\-]*")) {
-            tempList.add(directoryName + "/" + file.getName());
-          }
-          else {
-            try{
-              FileInputStream uploadfile = new FileInputStream(localRootPath + pathName + file.getName());
-              
-              if(publishPath.contains(SystemSettings.D_web + "/")) {
-                publishPath = publishPath.replace(SystemSettings.D_web + "/", "");
-              }
-              
-              if(ftpClient.cwd(ftpPath + publishPath) == 550){
-                ftpClient.makeDirectory(ftpPath + publishPath);
-              }
-              
-              ftpClient.storeFile( ftpPath + publishPath + file.getName(), uploadfile);
-              uploadfile.close();
-            }
-            catch(IOException e) {
-              e.printStackTrace();
-              return false;
-            }
-          }
-        
-        }
-      }
-      if(tempList.isEmpty()) {
-        break;
-      }
-      directoryList = tempList.stream().collect(Collectors.toList());
-      tempList.clear();
-    }
     
-    /* Upload the config file to Web server. */
-    try{
-      FileInputStream configFile = new FileInputStream(localRootPath + SystemSettings.configXMLFile);
-      ftpClient.storeFile( ftpPath + SystemSettings.configXMLFile, configFile);
-      configFile.close();
-    }
-    catch(Exception e){
-      e.printStackTrace();  
-    }
-    
+    uploadSingleDirectory("/public_html/",localRootPath + "web/","default/");
+    uploadSingleDirectory("/public_html/css/",localRootPath + "css/","");
+    uploadSingleDirectory("/public_html/upload/",localRootPath + "upload/","");
+    uploadSingleDirectory("/public_html/edit/",localRootPath + "edit/","");
+    uploadSingleDirectory("/public_html/config/",localRootPath + "config/","");
+
     view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Upload Web pages to server successfully."));
     return true;
+  }
+  
+  /**
+   * @param targetPath - remote directory path. should give an existing directory.
+   *  */
+  public boolean uploadSingleDirectory(String target, String local, String ignore) {
+    File localDirectory = new File(local);
+    uploadSingleDirectory(target, localDirectory, ignore);
+    return true;
+  }
+    
+  public void uploadSingleDirectory(String targetDirectoryPath,File directoyFile, String ignore){
+    targetDirectoryPath = targetDirectoryPath.replace(ignore, "");
+    createRemoteDirectory(targetDirectoryPath, ignore);
+    for(File file : directoyFile.listFiles(new FilenameFilter() {
+      @Override 
+      public boolean accept(File dir, String name) {
+        return !name.matches(".DS_Store");
+      }
+    })) {
+      if(file.isDirectory()) {
+        uploadSingleDirectory(targetDirectoryPath + file.getName()+"/", file, ignore);
+      }
+      else if(file.isFile()) {
+        uploadSingleFile(targetDirectoryPath + file.getName() ,file);
+      }
+    }
+  }
+  
+  private void createRemoteDirectory(String targetDirectoryPath, String ignore) {
+    try {
+      if(!ignore.equals("")) {
+        if(!targetDirectoryPath.contains(ignore) && ftpClient.cwd(targetDirectoryPath) == 550){
+          if(!ftpClient.makeDirectory(targetDirectoryPath)) {
+          return;
+          }
+        }
+      }
+      else {
+        if(ftpClient.cwd(targetDirectoryPath) == 550){
+          if(!ftpClient.makeDirectory(targetDirectoryPath)) {
+          return;
+          }
+        }
+      }
+    }
+    catch(Exception exception) {
+      exception.printStackTrace();
+    }  
+  }
+  
+  public Boolean uploadSingleFile(String targetPath, File uploadFile){
+    try {
+      System.out.println("target path : " + targetPath);
+      System.out.println("local path : " + uploadFile);
+      FileInputStream upload = new FileInputStream(uploadFile);
+      if(!ftpClient.storeFile(targetPath, upload)) {
+        System.out.println(ftpClient.getReplyString());
+      }
+      upload.close();
+      return true;
+    }
+    catch(Exception exception) {
+      System.out.println("Error ");
+      exception.printStackTrace();
+      return false;
+    }
   }
   
   public void saveFtpSettings(String host, String account, String password){

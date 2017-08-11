@@ -142,7 +142,7 @@ public class AdminView extends Dialog<String> implements View {
     webEngine = webView.getEngine();
     webView.setPrefWidth(380);
     webView.setPrefHeight(200);
-    webView.setZoom(0.5);
+    webView.setZoom(0.7);
     
     /** Using to reload the webview in order to avoid cache.*/
     webEngine.getLoadWorker().stateProperty().addListener(
@@ -177,7 +177,7 @@ public class AdminView extends Dialog<String> implements View {
     titleColorPick.setId(CSSCOLOR_TITLE);
     titleColorLabel.setGraphic(new ImageView(settingIcon));
     
-    Label subTitleColorLabel = new Label("Subtitle");
+    Label subTitleColorLabel = new Label("Menu");
     subTitleColorPick = new ColorPicker();
     subTitleColorPick.setId(CSSCOLOR_SUBTITLE);
     subTitleColorLabel.setGraphic(new ImageView(settingIcon));
@@ -192,7 +192,7 @@ public class AdminView extends Dialog<String> implements View {
     contentColorPick.setId(CSSCOLOR_CONTENT);
     contentColorLabel.setGraphic(new ImageView(settingIcon));
     
-    Label frameColorLabel = new Label("Frame");
+    Label frameColorLabel = new Label("Footer");
     frameColorPick = new ColorPicker();
     frameColorPick.setId(CSSCOLOR_FRAME);
     frameColorLabel.setGraphic(new ImageView(settingIcon));

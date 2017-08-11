@@ -1,153 +1,93 @@
-@charset "utf-8";
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed,
-figure, figcaption, footer, header, hgroup,
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-  margin: 0;
-	padding: 0;
-	border: 0;
-	vertical-align: baseline;
+html,body{
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
-article, aside, details, figcaption, figure,
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	height:100%;
-	width:100%;
-}
-ol, ul {
-	list-style: none;
-}
-html{
-	font-family:Microsoft JhengHei,MingLiU,sans-serif;
-	height:100%;
-	width:100%;
-}
-a{
-	text-decoration:none;
-}
-input,select,button,textarea {
-	font-family:Microsoft JhengHei,MingLiU,sans-serif;
-}
-button, a{
-	cursor: pointer;
-}
-/*
-The default setting of CSS layout
-*/
-
-.wrap{
+.wraper{
   min-height: 100%;
+  width: 100%;
   background-color: <main>;
 }
-
+footer{
+  height: 2.5em;
+  width: 100%;
+  text-align: center;
+  background-color: <frame>;
+  line-height: 2.5em;
+}
+h1,h2{
+  margin: 0;
+}
+.navbar{
+  border:0;
+}
 .header{
   background-color: <bk>;
-  text-align: center;
-  padding-top: 1.5em;
-  padding-bottom: 1.5em;
-  border-top: 1em solid <frame>;
-}
-
-.header-container {
-  width: 70%;
-  margin: auto;
-}
-
-.header-title {
+  height: 8em;
+  margin-top: 0;
+  padding-top: 2em;
   color: <title>;
-  font-weight: normal;
+}
+.navbar-nav{
+    margin-bottom: 0.5em;
+}
+.header h1.header-title{
   letter-spacing: 0.1em;
-}
-
-.header-subTitle {
-  color: <subtitle>;
-  font-weight: normal;
-  letter-spacing: 0.1em;
-  font-size: 1.2em;
-  margin-top: 0.5em;
-}
-
-.nav{
-  background-color: <bk>;
-  height: 3em;
-}
-.nav > .nav-box {
-  height: 3em;
-  display: flex;
-  align-items: center;
-  justify-content:center;
-}
-
-.nav-item {
-  float: left;
-}
-
-.nav-item-link {
-  color: #F2F2F2;
-  display: block;
+  font-weight: lighter;
+  font-size: 2em;
   text-align: center;
-  padding-top: 0.3em;
-  padding-bottom: 0.3em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  border: 1px solid #F2F2F2;
-  border-radius: 3px;
-  margin-left: 0.2em;
-  margin-right: 0.2em;
 }
-
-.nav-item-link:hover {
-  background-color: #F2F2F2;
+.header h2.header-subtitle{
+  letter-spacing: 0.1em;
+  font-weight: lighter;
+  padding-top: 1em;
+  font-size: 0.9em;
+  text-align: center;
+}
+.navbar-customized{
+  background-color: <bk>;
+  border-radius: 0;
+}
+.navbar-nav > li > a.nav-item, a.dropdown-toggle, .nav .open>a{
+  font-weight: lighter;
+  color: <subtitle>;
+  border-color: <bk>;
+}
+/* <subtitle>  rgba(255, 255, 255, 0.7)*/
+.navbar-nav > li > a.nav-item:hover, .nav>li>a:hover, .nav>li>a:focus, .nav .open>a:focus{
+  background-color: <subtitle>;
   color: <bk>;
-
 }
-
-.main {
-  color: <content>;
-  width: 70%;
+.main{
+  width: 90%;
+  max-width: 700px;
   margin: auto;
-  margin-top: 2em;
+}
+.main > .main-title{
+  font-size: 2em;
+  border-left: 0.2em solid rgba(0, 0, 0, 0.2);
+  padding-left: 0.2em;
+}
+.main > .main-subtitle{
+  background-color: rgba(80, 80, 80, 0.1);
+  font-size: 1em;
+  margin-top: 0.5em;
+  padding: 0.3em;
+  border-radius: 10px;
+}
+.article{
+  padding-top: 2em;
   padding-bottom: 2em;
 }
 
-h1.content-title {
-  font-size: 1.8em;
-  border-left: 0.3em solid #B64926;
-  text-indent: 0.2em;
-  color: #333;
-  line-height: 1.2em;
-  margin-top: 0.2em;
-  margin-bottom: 0.5em;
-}
-
-h2.content-title-sub {
-  font-size: 1.3em;
-  font-weight: normal;
-  border-left: 0.3em solid #FFB03B;
-  color: #333;
-  margin-top: 0.2em;
-  margin-bottom: 0.5em;
-  text-indent: 0.2em;
-}
-p{
-  line-height: 150%;
-}
-
-.footer {
-  height: 2.5em;
-  text-align: center;
-  font-size: small;
-  color: #FFFFFF;
-  background: <frame>;
-  line-height: 2.5em;
+@media (max-width:768px){
+  .navbar-customized .navbar-toggle .icon-bar{
+    background-color: <subtitle>;
+  }
+  h1, .main > .main-title{
+    font-size: 1.5em;
+  }
+  h2, .main > .main-subtitle{
+    font-size: 1.2em;
+  }
 }

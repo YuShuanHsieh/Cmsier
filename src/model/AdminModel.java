@@ -94,10 +94,11 @@ public class AdminModel extends Model {
       String pageTempPath = settings.getLocalPath() + CSSpreviewPath + layoutName + ".html";
     
       Templatetor page = new Templatetor(pageTemplatePath, pageTempPath);
-      page.addKeyAndContent("css", "\"file://" + cssFile.getAbsolutePath() + "\"");
+      page.addKeyAndContent("css", "file://" + cssFile.getAbsolutePath());
       page.addKeyAndContent("title", "layout title example");
       page.addKeyAndContent("subTitle", "layout subtitle example");
-      page.addKeyAndContent("menu", "<li class = \"nav-item\"><a class = \"nav-item-link\">menu</a></li>");
+      page.addKeyAndContent("menu", "<li class = \"nav-item\"><a>menu</a></li>");
+      page.addKeyAndContent("articleTitle", "Article title");
       page.addKeyAndContent("content", "this is layout page preview.");
       page.addKeyAndContent("footer", "example@copy right.");
       File previewPageFile = page.run();

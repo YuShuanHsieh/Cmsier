@@ -7,6 +7,7 @@ import model.GenerateModel;
 import model.GenerateModel.GENERATE;
 import model.utility.DataHelper;
 import model.utility.XmlHelper;
+import system.data.Category;
 import system.data.PageCollection;
 import system.data.Settings;
 import system.data.SinglePage;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 
 import system.DataCenter;
 
@@ -26,6 +28,7 @@ public class GenerateTest {
   private Settings settings;
   private GenerateModel model;
   private PageCollection testCollection;
+  private Map<String, Category> categories;
 
   @Before
   public void setUp() {
@@ -35,14 +38,18 @@ public class GenerateTest {
     settings = XmlHelper.retrieveSettingFromFile();
     DataCenter dataCenter = new DataCenter(mockStage);
     dataCenter.setSettings(settings);
-    testCollection = DataHelper.retrievePage(settings.getLocalPath()+ "edit/");
+    
+    categories = XmlHelper.retrieveCatetoryFromXML(settings.getLocalPath());
+    dataCenter.setCategory(categories);
+    
+    //testCollection = DataHelper.retrievePage(settings.getLocalPath()+ "edit/");
     
     model = new GenerateModel();
     model.setDataCenter(dataCenter);
     model.init();
  
   }
- 
+  /*
   @Test
   public void generateSinglePageTest() {
     Collection<SinglePage> page = testCollection.values(); 
@@ -61,6 +68,15 @@ public class GenerateTest {
     }
     
     assertTrue(resultContent.contains(test.getContent()));
+  }
+  */
+  @Test
+  public void generateSingleCategoryPageTest() {
+    for(Category item: categories.values()) {
+      model.generateSingleCategoryPage(GENERATE.draft, item);
+      File identify = new File(settings.getLocalPath() + "web/list/"+item.getName()+".html");
+      assertTrue(identify.exists());
+    }
   }
   
   

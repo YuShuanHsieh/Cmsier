@@ -66,7 +66,7 @@ public class AdminController extends Controller {
     AdminModel castModel = (AdminModel)model;
     AdminView castView = (AdminView)view; 
     
-    castView.getBrowseButton().setOnMousePressed(this::browseLocalPathEvent);
+    
     
     /** Set up a category view as user taps the tab.*/
     castView.getCategoryTab().setOnSelectionChanged(value -> {
@@ -75,6 +75,8 @@ public class AdminController extends Controller {
         setUpExistingCategoriteEvent();
       }
     });
+    
+    castView.getBrowseButton().setOnMousePressed(this::browseLocalPathEvent);
     
     allocateColorPickerEvent(AdminView.CSSCOLOR_HEADER);
     allocateColorPickerEvent(AdminView.CSSCOLOR_TITLE);
@@ -180,6 +182,7 @@ public class AdminController extends Controller {
     if(!dataCenter.isCategoryExist(name)) {
       ((AdminModel)model).addNewCategory(name);
       Label newCategory = new Label(name);
+      newCategory.prefWidthProperty().bind(existingCategories.widthProperty().divide(3));
       newCategory.setId("setting-category-item");
       
       newCategory.setOnMousePressed(new EventHandler<MouseEvent>() {

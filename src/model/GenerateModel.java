@@ -7,6 +7,8 @@ import model.render.Templatetor;
 import system.Statement;
 import system.SystemSettings;
 import system.data.SinglePage;
+import system.data.Category;
+import system.data.CategoryPage;
 import system.data.SettingItem;
 import system.data.Settings;
 import view.PreviewView;
@@ -42,26 +44,27 @@ public class GenerateModel extends Model {
     
     switch(type){
       case draft:
-        cssPath = "\"file://" + settings.getLocalPath() + SystemSettings.D_css + "/" + settings.getLayout() + ".css\"";
+        cssPath = "file://" + settings.getLocalPath() + SystemSettings.D_css + "/" + settings.getLayout() + ".css";
         for(SettingItem menuItem : settings.getMenu()) {
-          menu += "<li class = \"nav-item\"><a class = \"nav-item-link\">" + menuItem.getName() + "</a></li>";
+          menu += "<li><a class = \"nav-item\">" + menuItem.getName() + "</a></li>";
         }
+        menu += getCategoryMenu(dataCenter.getCategory().values());
         modifiedContent = page.getContent();
       break;
       case official:
-        cssPath = "\"" +settings.getPublish() + SystemSettings.D_css + "/" + settings.getLayout() + ".css\"";
+        cssPath = settings.getPublish() + SystemSettings.D_css + "/" + settings.getLayout() + ".css";
         for(SettingItem menuItem : settings.getMenu()) {
-          menu += "<li class = \"nav-item\"><a class = \"nav-item-link\" href = \"";
+          menu += "<li ><a class = \"nav-item\" href = \"";
           menu += settings.getPublish() +  menuItem.getTargetURL();
           menu += "\">" + menuItem.getName() + "</a></li>";
         }
+        menu += getCategoryMenu(dataCenter.getCategory().values());
         modifiedContent = replaceImagePath(page.getContent(), settings);
       break;
       default:
         /* Set default value */
       return;
     }
-    modifiedContent = inserTitleToContent(page.getTitle(), modifiedContent);
     // get a complete path of page file from SimplePage 
     verifyDirectory(pageDirectory + page.getDirectory() + "/");
     
@@ -74,6 +77,7 @@ public class GenerateModel extends Model {
       templatetor.addKeyAndContent("title", settings.getTitle());
       templatetor.addKeyAndContent("subTitle", settings.getSubTitle());
       templatetor.addKeyAndContent("menu", menu);
+      templatetor.addKeyAndContent("articleTitle", page.getTitle());
       templatetor.addKeyAndContent("content", modifiedContent);
       templatetor.addKeyAndContent("footer", settings.getFooter());
       File finalPageFile = templatetor.run();
@@ -84,11 +88,6 @@ public class GenerateModel extends Model {
     }
   }
   
-  public String inserTitleToContent(String title, String content) {
-    content = "<h1 class=\"content-title\">" + title + "</h1>" + content;
-    return content;
-  }
-  
   /* 
    * push a updateStatement request to view before generate all Web pages.
    */
@@ -96,11 +95,16 @@ public class GenerateModel extends Model {
     File pageDirctory = new File(pageDirectory);
     view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Generate final Web pages."));
     Collection<SinglePage> pages = dataCenter.getData().values();
+    
     try {
       FileUtils.deleteDirectory(pageDirctory);
       for(SinglePage page : pages) {
         generateSinglePage(GENERATE.official,page);
       }
+      
+      for(Category category : dataCenter.getCategory().values()) {
+        generateSingleCategoryPage(GENERATE.official,category);
+      }      
       return true;
     }
     catch(Exception exception) {
@@ -108,6 +112,79 @@ public class GenerateModel extends Model {
       return false;
     }
   }
+  
+  public String getCategoryMenu(Collection<Category> categories) {
+    String publishURL = dataCenter.getSettings().getPublish();
+    String categoryMenu = "<li class=\"dropdown\">" +
+        "<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">Categories<span class=\"caret\"></span></a>" +
+        "<ul class=\"dropdown-menu\">";
+    
+    for(Category category: categories) {
+      if(!category.getPageList().isEmpty()) {
+        categoryMenu += "<li><a href=\"" + publishURL + "list/" + category.getName() + ".html\">" + category.getName() + "</a></li>";
+      }
+    }
+    return categoryMenu += "</ul></li>";
+  }
+  
+  public String getCategoryContent(Category category) {
+    String content = "<ul>";
+    for(CategoryPage categoryPage : category.getPageList()) {
+      if(!categoryPage.getDirectory().equals("default")) {
+        content += "<li><a href=\"" + "../" + categoryPage.getDirectory()+"/"+ categoryPage.getFileName() + "\">" + categoryPage.getTitle() +"</a></li>";
+      }
+    }
+    return content + "</ul>";
+  }
+  
+  public void generateSingleCategoryPage(GENERATE type, Category category){
+    String templatePath;
+    String pagePath;
+    String cssPath;
+    String menu = "";
+    String modifiedContent = getCategoryContent(category);
+    
+    switch(type){
+      case draft:
+        cssPath = "file://" + settings.getLocalPath() + SystemSettings.D_css + "/" + settings.getLayout() + ".css";
+        for(SettingItem menuItem : settings.getMenu()) {
+          menu += "<li><a class = \"nav-item\">" + menuItem.getName() + "</a></li>";
+        }
+      break;
+      case official:
+        cssPath = settings.getPublish() + SystemSettings.D_css + "/" + settings.getLayout() + ".css";
+        for(SettingItem menuItem : settings.getMenu()) {
+          menu += "<li ><a class = \"nav-item\" href = \"";
+          menu += settings.getPublish() +  menuItem.getTargetURL();
+          menu += "\">" + menuItem.getName() + "</a></li>";
+        }
+      break;
+      default:
+        /* Set default value */
+      return;
+    } 
+    menu += getCategoryMenu(dataCenter.getCategory().values());
+    verifyDirectory(pageDirectory + "list/");
+    
+    pagePath = pageDirectory + "list/" + category.getName()+".html";
+    templatePath = SystemSettings.D_template + "/" + settings.getLayout() +".html";
+    
+    try{
+      Templatetor templatetor = new Templatetor(templatePath, pagePath);
+      templatetor.addKeyAndContent("css", cssPath);
+      templatetor.addKeyAndContent("title", settings.getTitle());
+      templatetor.addKeyAndContent("subTitle", settings.getSubTitle());
+      templatetor.addKeyAndContent("menu", menu);
+      templatetor.addKeyAndContent("content", modifiedContent);
+      templatetor.addKeyAndContent("footer", settings.getFooter());
+      File finalPageFile = templatetor.run();
+    }
+    catch(IOException e){
+      e.printStackTrace();
+    }
+  }
+  
+  
   
   private void verifyDirectory(String directoryPath) {
     File directory = new File(directoryPath);
