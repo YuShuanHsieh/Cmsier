@@ -30,7 +30,7 @@ import javafx.event.ActionEvent;
 import javafx.concurrent.Worker;
 
 /**
- * Admin - providing some configuring methods that helps user customized their web sites.
+ * Admin module - this module enable user to personalize their web sites.
  * @see AdminController
  * @see AdminModel
  *  */

@@ -1,25 +1,32 @@
 package controller;
 
+import javafx.scene.layout.Pane;
 import model.GenerateModel;
+import model.Model;
+import system.DataCenter;
 import view.PreviewView;
+import view.View;
 
 /*
  * @Author Yu-Shuan
  * */
 
-public class PreviewController extends Controller {
+public class PreviewController implements Controller {
   
+  private PreviewView view;
+  private DataCenter dataCenter;
   private GenerateModel generateModel;
 
-  public PreviewController() {
+  public PreviewController(DataCenter dataCenter) {
+    this.dataCenter = dataCenter;
     view = new PreviewView();
+    
+    generateModel = new GenerateModel();
+    attached(view, generateModel);
   }
   
   @Override
   public void init(){
-    generateModel = new GenerateModel();
-    attached(view, generateModel);
-    
     view.init();
     generateModel.init();
     generateModel.generatePreviewPage();
@@ -30,5 +37,24 @@ public class PreviewController extends Controller {
     });
     
     view.showPane();
+  }
+  
+  @Override
+  public Pane getView() {
+    return view.getPane();
+  }
+  
+  @Override
+  public void attached(View view, Model model) {
+    model.setView(view);
+    model.setDataCenter(dataCenter);
+  }
+  
+  @Override
+  public void setEvent(){
+  }
+  
+  @Override
+  public void setParent(Controller parent) {
   }
 }

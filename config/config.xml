@@ -12,10 +12,10 @@
             <targetURL>./page/test2.html</targetURL>
         </MenuItem>
     </Menu>
-    <footer>@ copy right.</footer>
+    <footer>Cherrie @ copy right.</footer>
     <layout>blue</layout>
     <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
-    <subTitle>My travel story</subTitle>
-    <title>Welcome to my world</title>
+    <subTitle>Test Web site.</subTitle>
+    <title>This is a test page</title>
 </Settings>

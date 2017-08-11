@@ -1,9 +1,13 @@
 package controller;
 
 import view.UploadView;
+import view.View;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import model.GenerateModel;
+import model.Model;
 import model.UploadModel;
+import system.DataCenter;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
@@ -11,13 +15,16 @@ import javafx.scene.control.TextField;
 import javafx.concurrent.Task;
 import view.component.ViewFactory;
 
-/*
- * @Author: Yu-Shuan
- * */
-public class UploadController extends Controller {
+/**
+ * @author yu-shuan
+ *  */
+public class UploadController implements Controller {
 
+  private UploadView view;
   private UploadModel uploadModel;
   private GenerateModel generateModel;
+  private DataCenter dataCenter;
+  
   private TextField host;
   private TextField account;
   private PasswordField password;
@@ -25,19 +32,35 @@ public class UploadController extends Controller {
   private Button uploadButton;
   private Button downloadButton;
     
-  public UploadController() {
+  public UploadController(DataCenter dataCenter) {
+    this.dataCenter = dataCenter;
     view = new UploadView();
     viewFactory = new ViewFactory();
-  }
-  
-  @Override
-  public void init(){
+    
     uploadModel = new UploadModel();
     attached(view, uploadModel);
     
     generateModel = new GenerateModel();
     attached(view, generateModel);
-    
+  }
+  
+  @Override
+  public void attached(View view, Model model) {
+    model.setView(view);
+    model.setDataCenter(dataCenter);
+  }
+  
+  @Override
+  public Pane getView() {
+    return view.getPane();
+  }
+  
+  @Override
+  public void setParent(Controller parent) {
+  }
+  
+  @Override
+  public void init(){
     view.init();
     uploadModel.init();
     generateModel.init();

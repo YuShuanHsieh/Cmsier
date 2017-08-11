@@ -1,22 +1,23 @@
 package controller;
 
 import view.EditView;
+import view.View;
 import view.EditView.RIGHTMENU;
 import model.EditModel;
 import model.GenerateModel;
+import model.Model;
 import model.GenerateModel.GENERATE;
 import model.utility.XmlHelper;
-
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import controller.AdminController;
+import controller.ControllerFactory.Id;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -28,17 +29,19 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import system.DataCenter;
 import system.Statement;
 import system.data.Category;
 import system.data.SinglePage;
 import view.component.ViewFactory;
-import controller.UploadController;
 import javafx.collections.ObservableList;
 
-public class EditController extends Controller{
+public class EditController implements Controller{
   
+  private EditView view;
   private EditModel editModel;
   private GenerateModel generateModel;
+  private DataCenter dataCenter;
   
   private ContextMenu currentRightMenu = null;
   private TreeItem<?> selectedPage;
@@ -46,6 +49,7 @@ public class EditController extends Controller{
   private Button saveButton;
   private Button settingButton;
   private Button uploadButton;
+  private Button insertButton;
   private CheckBox checkBox;
   private TextField menuNameField;
   private TextField titleField;
@@ -55,19 +59,36 @@ public class EditController extends Controller{
   private ChoiceBox<Category> selectCategory;
   private ObservableList<Category> selectCategoryList;
 
-  public EditController() {
+  public EditController(DataCenter dataCenter) {
+    this.dataCenter = dataCenter;
+    
     view = new EditView();
     viewFactory = new ViewFactory();
-  }
-  
-  @Override
-  public void init(){
+    
     editModel = new EditModel();
     attached(view, editModel);
     
     generateModel = new GenerateModel();
     attached(view, generateModel);
-    
+  }
+  
+  @Override
+  public void attached(View view, Model model) {
+    model.setView(view);
+    model.setDataCenter(dataCenter);
+  }
+  
+  @Override
+  public Pane getView() {
+    return view.getPane();
+  }
+  
+  @Override
+  public void setParent(Controller parent) {
+  }
+  
+  @Override
+  public void init(){
     view.init();
     editModel.init();
     generateModel.init();
@@ -80,8 +101,9 @@ public class EditController extends Controller{
     titleField = (TextField)view.getPane().lookup("#titleInput");
     editor = (HTMLEditor)view.getPane().lookup("#edit");
     centerPane = (GridPane)view.getPane().lookup("#center-edit");
-    selectCategory = ((EditView)view).getCategoryChoiceBox();
-    saveButton = ((EditView)view).getSaveButton();
+    selectCategory = view.getCategoryChoiceBox();
+    saveButton = view.getSaveButton();
+    insertButton = view.getInsertButton();
     
     selectCategoryList = FXCollections.observableList(dataCenter.getCategory().values().stream().collect(Collectors.toList()));
 
@@ -95,26 +117,15 @@ public class EditController extends Controller{
     settingButton.setOnMousePressed(this::openSettingEvent);
     uploadButton.setOnMousePressed(this::uploadfile);
     checkBox.setOnMousePressed(this::checkShowBoxEvent);
-    ((EditView)view).getInsertButton().setOnMousePressed(this::insertMediaEvent);
+    insertButton.setOnMousePressed(this::insertMediaEvent);
   }
   
-  /*
-   * Below is the function of each event.
-  */
   private void checkShowBoxEvent(MouseEvent event) {
-    if(checkBox.isSelected()) {
-      menuNameField.setVisible(false);
-    }
-    else {
-      menuNameField.setVisible(true);
-    }
+    menuNameField.setVisible(checkBox.isSelected());
   }
   
   private void openSettingEvent(MouseEvent event){
-    AdminController adminController = new AdminController();
-    adminController.setDataCenter(dataCenter);
-    adminController.setParent(this);
-    adminController.init();
+    ControllerFactory.create(Id.ADMIN, dataCenter, this);
   }
   
   private void saveThePageContent(MouseEvent event) {
@@ -122,44 +133,57 @@ public class EditController extends Controller{
     String content = editor.getHtmlText();
     String title = titleField.getText();
     String menuItemName;
+    Category category;
     
     if(checkBox.isSelected()) 
       menuItemName = menuNameField.getText(); 
     else menuItemName = "";
    
-    if(selectedPage == null || !selectedPage.getValue().toString().endsWith(".html")) {
-      viewFactory.createAlertWindow("Please select a page.");
-      return;
-    }
-    else if(title.trim().isEmpty()) {
-      viewFactory.createAlertWindow("The title field should not be empty.");
-      return;
-    }
-    else if(checkBox.isSelected() && menuItemName.trim().isEmpty()) {
-      viewFactory.createAlertWindow("The name field of menu should not be empty.");
-      return;
-    }
-    else {
+    /**  */
+    if(validateField(title, menuItemName)) {
+    
       page.setTitle(title);
-      if(!editModel.savePageContent(page, content, menuItemName, selectCategory.getSelectionModel().getSelectedItem())) {
-        viewFactory.createAlertWindow("This page cannot be saved, please check the content or setting.");
-        return;
-      }
-      else {
+      category = selectCategory.getSelectionModel().getSelectedItem();
+      
+      if(editModel.savePageContent(page, content, menuItemName, category)) {
         generateModel.generateSinglePage(GENERATE.draft, page);
-        PreviewController preview = new PreviewController();
-        preview.setDataCenter(dataCenter);
-        preview.init();
+        updateViewElement(checkBox.isSelected());
+        
+        ControllerFactory.create(Id.PREVIEW, dataCenter);
       }
       
-      if(checkBox.isSelected()) {
-        view.updateStatement(EditView.UPDATE_ON_MENU, Statement.success(selectedPage));
-      }
       else {
-        view.updateStatement(EditView.UPDATE_OFF_MENU, Statement.success(selectedPage));
+        viewFactory.createAlertWindow("This page cannot be saved, please check the content or setting.");
       }
     }
   } 
+  
+  private void updateViewElement(boolean checkBoxSelected) {
+    if(checkBoxSelected) {
+      view.updateStatement(EditView.UPDATE_ON_MENU, Statement.success(selectedPage));
+    }
+    else {
+      view.updateStatement(EditView.UPDATE_OFF_MENU, Statement.success(selectedPage));
+    }
+  }
+  
+  private Boolean validateField(String title, String menuName) {
+    if(selectedPage == null || !selectedPage.getValue().toString().endsWith(".html")) {
+      viewFactory.createAlertWindow("Please select a page.");
+      return false;
+    }
+    else if(title.trim().isEmpty()) {
+      viewFactory.createAlertWindow("The title field should not be empty.");
+      return false;
+    }
+    else if(checkBox.isSelected() && menuName.trim().isEmpty()) {
+      viewFactory.createAlertWindow("The name field of menu should not be empty.");
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
   
   private void insertMediaEvent(MouseEvent event) {
     ExtensionFilter filter = new ExtensionFilter("Image Files", "*.png", "*.jpg");
@@ -246,9 +270,7 @@ public class EditController extends Controller{
   }
   
   private void uploadfile(MouseEvent event) {
-    UploadController uploadController = new UploadController();
-    uploadController.setDataCenter(dataCenter);
-    uploadController.init();
+    ControllerFactory.create(Id.UPLOAD, dataCenter);
   }
   
   /** Should be modified later. */
@@ -263,5 +285,5 @@ public class EditController extends Controller{
       selectCategory.setValue(targetPage.getCategory());
     }
   }
-  
+
 }

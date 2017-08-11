@@ -12,9 +12,7 @@ public class CMS extends Application {
   @Override
 	public void start(Stage primaryStage) throws Exception {
 	  DataCenter dataCenter = new DataCenter(primaryStage);
-
-	  Controller controller = new EditController();
-	  controller.setDataCenter(dataCenter);
+	  Controller controller = new EditController(dataCenter);
 	  controller.init();
 	  
 	  /** In this project, it uses fixed size of window.*/

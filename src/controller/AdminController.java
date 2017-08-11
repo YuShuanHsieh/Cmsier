@@ -10,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -18,11 +19,19 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.AdminModel;
+import model.Model;
+import system.DataCenter;
 import view.AdminView;
+import view.View;
 import view.AdminView.Filed;
 import java.io.File;
 
-public class AdminController extends Controller {
+public class AdminController implements Controller {
+  
+  private EditController parent;
+  private AdminView view;
+  private AdminModel model;
+  private DataCenter dataCenter;
   
   private  TilePane existingCategories;
   private TextField editNameField;
@@ -31,25 +40,34 @@ public class AdminController extends Controller {
   private Button editCategoryButton;
   private Label selectedCategory;
   
-  /** It would require to invoke a update method of parent controller when user modify some configuration.*/
-  private EditController parent;
-    
-  public AdminController() {
+  public AdminController(DataCenter dataCenter) {
+    this.dataCenter = dataCenter;
     view = new AdminView();
+    
     model = new AdminModel();
+    attached(view, model);
   }
   
-  public void setParent(EditController parent) {
-    this.parent = parent;
+  public void setParent(Controller parent) {
+    this.parent = (EditController)parent;
+  }
+  
+  @Override
+  public void attached(View view, Model model) {
+    model.setView(view);
+    model.setDataCenter(dataCenter);
+  }
+  
+  @Override
+  public Pane getView() {
+    return view.getPane();
   }
   
   @Override
   public void init(){
-    attached(view, model);
-    
     view.init(); 
     model.init();
-    
+ 
     existingCategories = (TilePane)view.getPane().lookup("#setting-category-existing-list");
     editNameField = (TextField)view.getPane().lookup("#setting-category-edit");
     addCategoryButton = (Button)view.getPane().lookup("#setting-category-add-button");
@@ -57,7 +75,6 @@ public class AdminController extends Controller {
     editCategoryButton = (Button)view.getPane().lookup("#setting-category-edit-button");
     
     setEvent();
- 
     view.showPane();
   }
   
@@ -65,8 +82,6 @@ public class AdminController extends Controller {
   public void setEvent(){
     AdminModel castModel = (AdminModel)model;
     AdminView castView = (AdminView)view; 
-    
-    
     
     /** Set up a category view as user taps the tab.*/
     castView.getCategoryTab().setOnSelectionChanged(value -> {
