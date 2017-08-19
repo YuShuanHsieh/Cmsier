@@ -4,33 +4,57 @@
  */
 package system;
 
-import java.util.HashMap;
-import java.util.Map;
 import javafx.stage.Stage;
-import model.utility.XmlHelper;
 import system.data.CSSXMLsettings;
 import system.data.Category;
+import system.data.CategoryCollection;
 import system.data.CategoryPage;
 import system.data.PageCollection;
 import system.data.SettingItem;
 import system.data.Settings;
+import system.data.SinglePage;
+import model.utility.DataHelpers.CategoryDataHelper;
+import model.utility.DataHelpers.PageDataHelper;
+import model.utility.DataHelpers.SettingDataHelper;
+
+/**
+ * A collection of all required data of Web site.
+ * It serves functions combined with data objects and data helpers.
+ *  */
 
 public class DataCenter {
   
   /** it is used to calculate the size of view components. */
   private Stage window;
   
+  private SettingDataHelper settingHelper;
+  private PageDataHelper pageHelper;
+  private CategoryDataHelper categoryHelper;
+  
   private PageCollection pageCollection;
   private Settings settings;
   private CSSXMLsettings cssSettings;
-  private Map<String, Category> categories;
+  private CategoryCollection categories;
+  
   private String localPreviewPagePath = ""; 
   
   public DataCenter(Stage window) {
     this.window = window;
-    categories = new HashMap<String, Category>();
   }
-
+  
+  public void init() {
+    settingHelper = new SettingDataHelper();
+    settings = settingHelper.read(null);
+    
+    pageHelper = new PageDataHelper(settings.getLocalPath());
+    categoryHelper = new CategoryDataHelper(settings.getLocalPath());
+    
+    categories = categoryHelper.read(null);
+    pageCollection = pageHelper.read(null);
+    
+    organize();
+  }
+ 
   public Stage getWindow() {
     return this.window;
   }
@@ -59,20 +83,24 @@ public class DataCenter {
     this.settings = settings;
   }
   
-  public PageCollection getData() {
+  public PageCollection getPageCollection() {
     return this.pageCollection;
   }
   
-  public void setData(PageCollection data) {
+  public void setPageCollection(PageCollection data) {
     this.pageCollection = data;
   }
   
-  public Map<String, Category> getCategory() {
+  public CategoryCollection getCategory() {
     return this.categories;
   }
   
-  public void setCategory(Map<String, Category> categories) {
+  public void setCategory(CategoryCollection categories) {
     this.categories = categories;
+  }
+  
+  public void updateCategory() {
+    categories = categoryHelper.read(null);
   }
   
   public Boolean isCategoryExist(String categoryName) {
@@ -84,14 +112,6 @@ public class DataCenter {
     }
   }
   
-  public void removePageFromCategory(String fileName) {
-    for(Category category : categories.values()) {
-      if(category.removePageFromList(fileName)) {
-        XmlHelper.writeCategoryToXML(category, settings.getLocalPath()+"category/");
-      }
-    }
-  }
-
   public void organize() {
     for(SettingItem menuItem : settings.getMenu()) {
       if(pageCollection.containsKey(menuItem.getFileName())) {
@@ -109,5 +129,73 @@ public class DataCenter {
     }
   }
   
+  public void updateSetting() {
+    settingHelper.write(settings);
+  }
+  
+  
+  public void removePage(SinglePage page) {
+    Category category = page.getCategory();
+    if(page.getCategory() != null) {
+      category.removePageFromList(page.getName());
+      categoryHelper.write(category);
+    }
+    
+    if(pageCollection.removePage(page)) {
+      pageHelper.delete(page);
+    }
    
+    if(settings.removeItemFromMenu(page)) {
+      settingHelper.write(settings);
+    }
+  }
+  
+  public void addPage(SinglePage page) {
+    if(pageCollection.addNewPage(page)) {
+      pageHelper.write(page.getName());
+    }
+  }
+  
+  public void updatePage(SinglePage page) {
+    pageHelper.write(page);
+  }
+  
+  public void addItem(String itemName, SinglePage page) {
+    if(settings.addItemToMenu(itemName, page)) {
+      settingHelper.write(settings);
+    }
+  }
+  
+  public void removeItem(SinglePage page) {
+    if(settings.removeItemFromMenu(page)) {
+      settingHelper.write(settings);
+    }
+  }
+  
+  public void addCategoryPage(SinglePage page, Category category) {
+    category.addPageToList(page);
+    categoryHelper.write(category);
+  }
+  
+  public void removeCategoryPage(SinglePage page) {
+    Category category = page.getCategory();
+    category.removePageFromList(page.getName());
+    categoryHelper.write(category);
+  }
+  
+  public void addNewCategory(Category newCategory) {
+    if(categories.addCategory(newCategory)) {
+      categoryHelper.write(newCategory);
+    }
+  }
+  
+  public void removeCategory(Category newCategory) {
+    if(categories.removeCategory(newCategory)) {
+      categoryHelper.delete(newCategory.getName());
+    }
+  }
+  
+  
+  
+  
 }

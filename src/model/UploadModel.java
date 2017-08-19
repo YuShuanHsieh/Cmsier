@@ -10,30 +10,37 @@ import java.util.stream.Collectors;
 import java.io.FilenameFilter;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-
-import model.utility.XmlHelper;
+import model.utility.DataHelpers.FTPDataHelper;
+import system.DataCenter;
 import system.Statement;
 import system.SystemSettings;
 import system.data.FtpSettings;
 import view.UploadView;
+import view.View;
 
-public class UploadModel extends Model {
+public class UploadModel implements Model {
 
+  private View view;
+  
   private FTPClient ftpClient;
   private FtpSettings ftpSetting;
-  private XmlHelper xmlHelper;
   private String localRootPath;
+  private FTPDataHelper helper;
    
-  public UploadModel() {
+  public UploadModel(DataCenter dataCenter) {
+    localRootPath = dataCenter.getSettings().getLocalPath();
     ftpClient = new FTPClient();
-    xmlHelper = new XmlHelper();
+    helper = new FTPDataHelper();
+  }
+  
+  @Override
+  public void attach(View view) {
+    this.view = view;
   }
   
   @Override
   public void init(){
-    localRootPath = dataCenter.getSettings().getLocalPath();
-    File ftpXmlFile = new File(SystemSettings.ftpXMLFile);
-    ftpSetting = xmlHelper.retrieveFtpSettingFromXML(ftpXmlFile);
+    ftpSetting = helper.read(null);
     if(ftpSetting != null){
       view.updateStatement(UploadView.UPLOAD_INFO, Statement.success(ftpSetting));
     }
@@ -41,12 +48,12 @@ public class UploadModel extends Model {
 
   public boolean connectToWebServer(String host, String account, String password) {
     try{
-      //view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Start to connect to server."));
+      view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Start to connect to server."));
       ftpClient.connect(host, 21);
       ftpClient.login(account, password);
       
       if(ftpClient.getReplyCode() == 530) {
-        //view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connot connect to server."));
+        view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connot connect to server."));
         
       }
       else {
@@ -54,7 +61,7 @@ public class UploadModel extends Model {
         ftpClient.changeWorkingDirectory("/" + SystemSettings.D_ftp);
         ftpClient.enterLocalPassiveMode();
         ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-        //view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connect to Web server successfully."));
+        view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Connect to Web server successfully."));
         return true;
       }
       
@@ -160,8 +167,7 @@ public class UploadModel extends Model {
     ftpSetting.setHost(host);
     ftpSetting.setAccount(account);
     ftpSetting.setPassword(password);
-    
-    xmlHelper.writeSettingToXML(ftpSetting);
+    helper.write(ftpSetting);
   }
   
   public boolean downloadFileFromServer(){

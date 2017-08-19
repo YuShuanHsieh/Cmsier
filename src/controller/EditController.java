@@ -7,9 +7,7 @@ import model.EditModel;
 import model.GenerateModel;
 import model.Model;
 import model.GenerateModel.GENERATE;
-import model.utility.XmlHelper;
 import java.io.File;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import controller.ControllerFactory.Id;
@@ -35,6 +33,11 @@ import system.data.Category;
 import system.data.SinglePage;
 import view.component.ViewFactory;
 import javafx.collections.ObservableList;
+
+/**
+ * Edit module: enable user to edit page's content.
+ * It contains functions of page selection, text editor, and save content.
+ *  */
 
 public class EditController implements Controller{
   
@@ -65,17 +68,16 @@ public class EditController implements Controller{
     view = new EditView();
     viewFactory = new ViewFactory();
     
-    editModel = new EditModel();
+    editModel = new EditModel(dataCenter);
     attached(view, editModel);
     
-    generateModel = new GenerateModel();
+    generateModel = new GenerateModel(dataCenter);
     attached(view, generateModel);
   }
   
   @Override
   public void attached(View view, Model model) {
-    model.setView(view);
-    model.setDataCenter(dataCenter);
+    model.attach(view);
   }
   
   @Override
@@ -121,7 +123,7 @@ public class EditController implements Controller{
   }
   
   private void checkShowBoxEvent(MouseEvent event) {
-    menuNameField.setVisible(checkBox.isSelected());
+    menuNameField.setVisible(!checkBox.isSelected());
   }
   
   private void openSettingEvent(MouseEvent event){
@@ -141,20 +143,14 @@ public class EditController implements Controller{
    
     /**  */
     if(validateField(title, menuItemName)) {
-    
       page.setTitle(title);
       category = selectCategory.getSelectionModel().getSelectedItem();
+      editModel.savePageContent(page, content, menuItemName, category);
       
-      if(editModel.savePageContent(page, content, menuItemName, category)) {
-        generateModel.generateSinglePage(GENERATE.draft, page);
-        updateViewElement(checkBox.isSelected());
+      generateModel.generateSinglePage(GENERATE.draft, page);
+      updateViewElement(checkBox.isSelected());
         
-        ControllerFactory.create(Id.PREVIEW, dataCenter);
-      }
-      
-      else {
-        viewFactory.createAlertWindow("This page cannot be saved, please check the content or setting.");
-      }
+      ControllerFactory.create(Id.PREVIEW, dataCenter);
     }
   } 
   
@@ -193,7 +189,7 @@ public class EditController implements Controller{
       String clipedContent = editModel.clipHTMLContent(editor.getHtmlText());
       StringBuilder stringbuilder = new StringBuilder(clipedContent);
     
-      stringbuilder.append("<img style=\"max-width:100%;\" src=\"file://" + selectedFile.getPath() + "\">");
+      stringbuilder.append("<img src=\"file://" + selectedFile.getPath() + "\" style=\"max-width: 100%;\">");
       editor.setHtmlText(stringbuilder.toString());
     }
   }
@@ -275,10 +271,9 @@ public class EditController implements Controller{
   
   /** Should be modified later. */
   public void updateCacheData() {
-    Map<String, Category> categories = XmlHelper.retrieveCatetoryFromXML(dataCenter.getSettings().getLocalPath());
-    dataCenter.setCategory(categories);
+    dataCenter.updateCategory();
     dataCenter.organize();
-    selectCategoryList = FXCollections.observableList(categories.values().stream().collect(Collectors.toList()));
+    selectCategoryList = FXCollections.observableList(dataCenter.getCategory().values().stream().collect(Collectors.toList()));
     selectCategory.setItems(selectCategoryList);
     if(selectedPage != null && selectedPage.getValue().toString().endsWith(".html")) {
       SinglePage targetPage = (SinglePage)selectedPage.getValue();

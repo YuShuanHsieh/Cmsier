@@ -37,17 +37,16 @@ public class UploadController implements Controller {
     view = new UploadView();
     viewFactory = new ViewFactory();
     
-    uploadModel = new UploadModel();
+    uploadModel = new UploadModel(dataCenter);
     attached(view, uploadModel);
     
-    generateModel = new GenerateModel();
+    generateModel = new GenerateModel(dataCenter);
     attached(view, generateModel);
   }
   
   @Override
   public void attached(View view, Model model) {
-    model.setView(view);
-    model.setDataCenter(dataCenter);
+    model.attach(view);
   }
   
   @Override

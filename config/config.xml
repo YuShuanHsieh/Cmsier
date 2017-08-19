@@ -11,8 +11,13 @@
             <name>Test</name>
             <targetURL>./page/test2.html</targetURL>
         </MenuItem>
+        <MenuItem>
+            <fileName>test.html</fileName>
+            <name>Description</name>
+            <targetURL>./page/test.html</targetURL>
+        </MenuItem>
     </Menu>
-    <footer>Cherrie @ copy right.</footer>
+    <footer>Yu-Shuan @ copy right.</footer>
     <layout>blue</layout>
     <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>

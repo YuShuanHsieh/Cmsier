@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import model.render.Templatetor;
+import system.DataCenter;
 import system.Statement;
 import system.SystemSettings;
 import system.data.SinglePage;
@@ -13,26 +14,38 @@ import system.data.SettingItem;
 import system.data.Settings;
 import view.PreviewView;
 import view.UploadView;
+import view.View;
+
 import org.apache.commons.io.FileUtils;
-/*
+/**
  * This class is responsible for generating preview or official Web pages.
  * @Author: Yu-Shuan
  *  */
-public class GenerateModel extends Model {
+public class GenerateModel implements Model {
 
+  private DataCenter dataCenter;
+  private View view;
+  
   private String pageDirectory = "";
   private Settings settings;
   
-  /* draft - preview pages, official - published pages. */
+  /** draft - generate preview pages, official - generate published pages. */
   public enum GENERATE{draft, official}
   
-  public GenerateModel(){
+  public GenerateModel(DataCenter dataCenter){
+    this.dataCenter = dataCenter;
+    this.settings = dataCenter.getSettings();
+    this.pageDirectory = settings.getLocalPath() + SystemSettings.D_web + "/";
+  }
+  
+  @Override
+  public void attach(View view) {
+    this.view = view;
   }
   
   @Override
   public void init(){
-    settings = dataCenter.getSettings();
-    pageDirectory = settings.getLocalPath() + SystemSettings.D_web + "/";
+    
   }
  
   public void generateSinglePage(GENERATE type, SinglePage page){
@@ -94,7 +107,7 @@ public class GenerateModel extends Model {
   public boolean generateAllFinalPages() {
     File pageDirctory = new File(pageDirectory);
     view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Generate final Web pages."));
-    Collection<SinglePage> pages = dataCenter.getData().values();
+    Collection<SinglePage> pages = dataCenter.getPageCollection().values();
     
     try {
       FileUtils.deleteDirectory(pageDirctory);

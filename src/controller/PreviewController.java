@@ -7,7 +7,7 @@ import system.DataCenter;
 import view.PreviewView;
 import view.View;
 
-/*
+/**
  * @Author Yu-Shuan
  * */
 
@@ -21,7 +21,7 @@ public class PreviewController implements Controller {
     this.dataCenter = dataCenter;
     view = new PreviewView();
     
-    generateModel = new GenerateModel();
+    generateModel = new GenerateModel(dataCenter);
     attached(view, generateModel);
   }
   
@@ -46,8 +46,7 @@ public class PreviewController implements Controller {
   
   @Override
   public void attached(View view, Model model) {
-    model.setView(view);
-    model.setDataCenter(dataCenter);
+    model.attach(view);
   }
   
   @Override

@@ -1,115 +1,84 @@
 package model;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Map;
 import java.util.Optional;
-import model.utility.XmlHelper;
-import model.utility.DataHelper;
+import system.DataCenter;
 import system.Statement;
 import system.SystemSettings;
-import system.data.PageCollection;
-import system.data.Settings;
 import system.data.SinglePage;
 import view.EditView;
+import view.View;
 import system.data.Category;
 
-public class EditModel extends Model {
+/**
+ * Edit module: enable user to edit page's content.
+ * It contains functions of page selection, text editor, and save content.
+ *  */
+
+public class EditModel implements Model {
   
-  private XmlHelper xmlHelper;
+  private DataCenter dataCenter;
+  private View view;
   
-  public EditModel(){
-    xmlHelper = new XmlHelper();
+  public EditModel(DataCenter dataCenter){
+    this.dataCenter = dataCenter;
+  }
+  
+  public void attach(View view) {
+    this.view = view;
   }
   
   @Override
   public void init() {
-    Settings settings = xmlHelper.retrieveSettings();
-    dataCenter.setSettings(settings);
-    
-    Map<String, Category> categories = XmlHelper.retrieveCatetoryFromXML(settings.getLocalPath());
-    dataCenter.setCategory(categories);
-    
-    PageCollection pageCollection = DataHelper.retrievePage(settings.getLocalPath());
-    dataCenter.setData(pageCollection);
-    dataCenter.organize();
-    
-    view.updateStatement(EditView.SETUP_TREEVIEW, Statement.success(pageCollection));
+    view.updateStatement(EditView.SETUP_TREEVIEW, Statement.success(dataCenter.getPageCollection()));
   }
 
-  public boolean savePageContent(SinglePage page, String content, String customizedName, Category category) {
-    
-    String pathUrl = dataCenter.getSettings().getLocalPath() + SystemSettings.D_edit + "/";
-
-    try {
-      String clippedContent = clipTheContent(content); 
-      page.setContent(clippedContent);
-        
-      pathUrl += page.getDirectory() + "/" + page.getName();
-     
-      FileWriter writer = new FileWriter(pathUrl);
-      writer.write(clippedContent);
-      writer.close();
+  /** Three steps of save contents: save page contents -> save Menu Items -> save categories */
+  public void savePageContent(SinglePage page, String content, String customizedName, Category category) {
+    String clippedContent = clipTheContent(content); 
+    page.setContent(clippedContent);
+    dataCenter.updatePage(page);
   
-      if(customizedName != "") {
-        dataCenter.getSettings().addItemToMenu(customizedName, page);
-        page.setIsOnMenu(true);
-      }
-      else {
-        dataCenter.getSettings().removeItemFromMenu(page);
-        page.setIsOnMenu(false);
-      }
-       
-      addPageToCategory(page, category);
-
-      }catch(Exception e) {
-        e.printStackTrace();
-        return false;
-      }      
-    
-    
-    return true;
-  }
-  
-  private void addPageToCategory(SinglePage page, Category Category) {
-    /** Remove the original category before add. */
-    if(page.getCategory() != null && !page.getCategory().equals(Category)) {
-      dataCenter.removePageFromCategory(page.getName());
+    if(customizedName != "") {
+      dataCenter.addItem(customizedName, page);
+      page.setIsOnMenu(true);
     }
-    page.setCategory(Category);
-    Category.addPageToList(page);
-    XmlHelper.writeCategoryToXML(Category, dataCenter.getSettings().getLocalPath()+ "category/");
+    else {
+      dataCenter.removeItem(page);
+      page.setIsOnMenu(false);
+    }
+    
+    if(category != null) {
+      addPageToCategory(page, category);
+    }
+  }
+  
+  private void addPageToCategory(SinglePage page, Category category) {
+    
+    /** Should remove the page from the previous category. */
+    Category originalCategory = page.getCategory();
+    if(originalCategory != null && originalCategory != category) {
+      dataCenter.removeCategoryPage(page);
+    }
+    
+    page.setCategory(category);
+    dataCenter.addCategoryPage(page, category);
   }
   
   public void deleteExistingPage(SinglePage page) {
     if(!page.toString().endsWith(".html")) {
       return;
     }
-    dataCenter.removePageFromCategory(page.getName());
-    dataCenter.getData().removePage(page);
-    dataCenter.getSettings().removeItemFromMenu(page);
-    DataHelper.deletePageFromFile(dataCenter.getSettings().getLocalPath(), page);
+    dataCenter.removePage(page);
   }
 
   public Optional<SinglePage> addNewPage(String fileName) {
-    if(!dataCenter.getData().isPageNameExist(fileName)) {
+    if(!dataCenter.getPageCollection().isPageNameExist(fileName)) {
       SinglePage newPage = new SinglePage(fileName + ".html");
       newPage.setDirectory("page");
-      dataCenter.getData().addNewPage(newPage);
+      dataCenter.addPage(newPage);
       
-      String mewPageFilePath = dataCenter.getSettings().getLocalPath() + "edit/page/" + fileName + ".html";
-      File newPageFile = new File(mewPageFilePath);
-      
-      try {
-        if(!newPageFile.exists()) {
-          newPageFile.createNewFile();
-        }
-      }
-      catch(IOException exception) {
-        exception.printStackTrace();
-      }
       view.updateStatement(EditView.UPDATE_TREEVIEW_ADD, Statement.success(newPage));
       return Optional.of(newPage);
     }
@@ -138,7 +107,7 @@ public class EditModel extends Model {
   
   public String imageStore(String content) {
     
-    String clip = "<img style=\"max-width:100%;\" src=\"file://";
+    String clip = "<img src=\"file://";
     StringBuilder stringBuilder = new StringBuilder(content);
     int startIndex = 0;
     
@@ -146,7 +115,7 @@ public class EditModel extends Model {
       
       startIndex = stringBuilder.indexOf("<img", startIndex);
       if(startIndex != -1){
-        int lastIndex = stringBuilder.indexOf("\">", startIndex + 1);
+        int lastIndex = stringBuilder.indexOf("\" style=\"max-width: 100%;\">", startIndex + 1);
         stringBuilder.substring(startIndex, lastIndex);
         String filePah = stringBuilder.substring(startIndex + clip.length(), lastIndex).toString();
       
@@ -166,7 +135,7 @@ public class EditModel extends Model {
           return null;
         }
         stringBuilder = stringBuilder.replace(startIndex + clip.length(), lastIndex, newFile.getAbsolutePath());
-        /* find the last index again because of inserting string. */
+        /** find the last index again because of inserting string. */
         lastIndex = stringBuilder.indexOf("\">", startIndex + 1);
         startIndex = lastIndex;
       }

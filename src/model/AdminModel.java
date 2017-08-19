@@ -1,60 +1,84 @@
 package model;
-
-/**
- * Admin - providing some configuring methods that helps user customized their web sites.
- * @see AdminController
- * @see AdminView
- *  */
-
 import java.io.File;
 import java.io.IOException;
 import view.AdminView;
+import view.View;
 import model.render.Templatetor;
-import model.utility.XmlHelper;
-import model.utility.DataHelper;
+import model.utility.DataHelpers.CSSDataHelper;
+import system.DataCenter;
 import system.Statement;
 import system.SystemSettings;
 import system.data.CSSXMLsettings;
 import system.data.Category;
 import system.data.Settings;
 
-public class AdminModel extends Model {
+/**
+ * Admin module: set up data about Web sites, layout, and categories.
+ * The model should only attach AdminView to get the correct result.
+ * @see AdminController
+ * @see AdminView
+ *  */
 
-  private XmlHelper xmlHelper;
+public class AdminModel implements Model {
+  private View view;
+  private CSSDataHelper cssDataHelper;
   private CSSXMLsettings cssSettings;
+  private DataCenter dataCenter;
   private Settings settings;
-  private final String CSStemplatePath = SystemSettings.D_layout + "/" + SystemSettings.D_layout_template + "/";
-  private final String CSSxmlPath = SystemSettings.D_layout + "/" + SystemSettings.D_layout_xml + "/";
-  private final String CSSpreviewPath = SystemSettings.D_layout + "/" + SystemSettings.D_layout_preview + "/";
-  private final String cssPath = SystemSettings.D_css + "/";
-  private final String templatePath = SystemSettings.D_template + "/";
+  private final String cssPreviewPath;
+  
+  public AdminModel(DataCenter dataCenter) {
+    this.dataCenter = dataCenter;
+    settings = dataCenter.getSettings();
+    cssPreviewPath = settings.getLocalPath() + SystemSettings.CSSpreviewPath;
+    cssDataHelper = new CSSDataHelper(settings.getLocalPath());
+  }
+  
+  @Override
+  public void attach(View view) {
+    this.view = view;
+  }
   
   @Override
   public void init() {
-    settings = dataCenter.getSettings();
+    changeLayout(settings.getLayout());
     view.updateStatement(AdminView.UPDATE_SETTINGS, Statement.success(settings));
-    
-    generateCssSetting();
-    generatePreviewPage();
   }
   
-  private void generateCssSetting(){
-    cssSettings = getCssSettings();
-    dataCenter.setCSSSettings(cssSettings);
+  public void changeLayout(String layoutName){
+    cssSettings = cssDataHelper.read(layoutName);
+    String previewPagePath = generatePreviewPage(layoutName);
     view.updateStatement(AdminView.UPDATE_CSSSETTINGS, Statement.success(cssSettings));
+    view.updateStatement(AdminView.UPDATE_LOADPAGE, Statement.success(previewPagePath));
   }
   
-  public void changeLayout(){
-    generateCssSetting();
-    generatePreviewPage();
-  }
-  
-  public void changeLayoutColor(){
-    String targetCssFile = settings.getLocalPath() + CSSpreviewPath + settings.getLayout() + ".css";
+  public void changeLayoutColor(String fieldName, String color){
+    
+    if(fieldName.equals(AdminView.CSSCOLOR_HEADER)) {
+      cssSettings.setHeaderColor(color);
+    }
+    else if(fieldName.equals(AdminView.CSSCOLOR_TITLE)) {
+      cssSettings.setTitleColor(color); 
+    }
+    else if(fieldName.equals(AdminView.CSSCOLOR_SUBTITLE)){
+      cssSettings.setSubTitleColor(color);
+    }
+    else if(fieldName.equals(AdminView.CSSCOLOR_MAIN)) {
+      cssSettings.setMainColor(color);
+    }
+    else if(fieldName.equals(AdminView.CSSCOLOR_CONTENT)) {
+      cssSettings.setContentColor(color);
+    }
+    else if(fieldName.equals(AdminView.CSSCOLOR_FRAME)) {
+      cssSettings.setFrameColor(color);
+    }
+    
+    String targetCssFile = cssPreviewPath + cssSettings.getName() + ".css";
     generateCssFile(targetCssFile);
     view.updateStatement(AdminView.UPDATE_RELOADPAGE, Statement.success(null));
   }
   
+  /** Invoked by the submit button. write the setting object to files.*/
   public boolean modifySettingsField(String title, String subTitle, String localPath, String serverPath, String layout, String footer) {
     if(title.trim().isEmpty()) {
       return false;
@@ -73,27 +97,25 @@ public class AdminModel extends Model {
       settings.setLayout(layout); 
       settings.setFooter(footer);
     }
-    XmlHelper.writeSettingToXML(settings);
+    dataCenter.updateSetting();
     return true;
   }
   
+  /** Invoked by the submit button. write the CSS object to files.*/
   public void modifyCssSetting(){
-    xmlHelper = new XmlHelper();
-    xmlHelper.writeSettingToXML(cssSettings, settings);
-    String tempPath = settings.getLocalPath() + cssPath + cssSettings.getName() + ".css";
+    cssDataHelper.write(cssSettings);
+    String tempPath = settings.getLocalPath() + SystemSettings.cssPath + cssSettings.getName() + ".css";
     generateCssFile(tempPath);
   }
     
-  public void generatePreviewPage(){
-    String layoutName = settings.getLayout();
-    String targetCssFile = settings.getLocalPath() + CSSpreviewPath + layoutName + ".css";
-    File cssFile = generateCssFile(targetCssFile);
-    try{
-      
-      String pageTemplatePath = templatePath + layoutName + ".html";
-      String pageTempPath = settings.getLocalPath() + CSSpreviewPath + layoutName + ".html";
+  private String generatePreviewPage(String layoutName){
+    String pageTemplatePath = SystemSettings.templatePath + layoutName + ".html";
+    String previewPagePath = cssPreviewPath + layoutName + ".html";
+    String cssFilePath = cssPreviewPath + layoutName + ".css";
     
-      Templatetor page = new Templatetor(pageTemplatePath, pageTempPath);
+    try{
+      File cssFile = generateCssFile(cssFilePath);
+      Templatetor page = new Templatetor(pageTemplatePath, previewPagePath);
       page.addKeyAndContent("css", "file://" + cssFile.getAbsolutePath());
       page.addKeyAndContent("title", "layout title example");
       page.addKeyAndContent("subTitle", "layout subtitle example");
@@ -102,15 +124,16 @@ public class AdminModel extends Model {
       page.addKeyAndContent("content", "this is layout page preview.");
       page.addKeyAndContent("footer", "example@copy right.");
       File previewPageFile = page.run();
-      view.updateStatement(AdminView.UPDATE_LOADPAGE, Statement.success(previewPageFile.getAbsolutePath()));
+      return previewPageFile.getAbsolutePath();
     }
     catch(IOException e){
       e.printStackTrace();
+      return null;
     }
   }
   
   private File generateCssFile(String targetPath){
-    String templatePath = CSStemplatePath + settings.getLayout() + ".css";
+    String templatePath = SystemSettings.CSStemplatePath + cssSettings.getName() + ".css";
     File cssFile;
     try{
       Templatetor template = new Templatetor(templatePath, targetPath);
@@ -131,40 +154,17 @@ public class AdminModel extends Model {
     return null;
   }
   
-  private CSSXMLsettings getCssSettings(){
-    CSSXMLsettings cssSetting = null;
-    String layoutName = settings.getLayout();
-    File file = new File(settings.getLocalPath() + CSSxmlPath + layoutName + ".xml"); 
-    try{
-      if(!file.exists()){
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.initDefaultLayout();
-        cssSetting = systemSettings.getDefaultLayout(layoutName);
-      }
-      else{
-        XmlHelper xmlHelper = new XmlHelper();
-        cssSetting = xmlHelper.retrieveCSSSettingFromXML(file);
-      }
-    }
-    catch(Exception e){
-      e.printStackTrace();
-    }
-    
-    return cssSetting;
-  }
-  
   public void addNewCategory(String categoryName) {
     Category newCategory = new Category();
     newCategory.setName(categoryName);
-    dataCenter.getCategory().put(categoryName, newCategory);
-    XmlHelper.writeCategoryToXML(newCategory, dataCenter.getSettings().getLocalPath() + "category/");
+    dataCenter.addNewCategory(newCategory);
   }
-  
-  public void editCategoryName(String newName, String originalName) {
-    Category targetCategory = dataCenter.getCategory().get(originalName);
-    targetCategory.setName(newName);
-    XmlHelper.writeCategoryToXML(targetCategory, dataCenter.getSettings().getLocalPath() + "category/");
-    DataHelper.deleteCategoryFile(dataCenter.getSettings().getLocalPath(), originalName);
+ 
+  public void editCategoryName(String newName, String originalCategoryName) {
+    Category originalCategory = dataCenter.getCategory().get(originalCategoryName);
+    dataCenter.removeCategory(originalCategory);
+    originalCategory.setName(newName);
+    dataCenter.addNewCategory(originalCategory);
   }
   
 }

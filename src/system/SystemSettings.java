@@ -1,19 +1,13 @@
 package system;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import system.data.CSSXMLsettings;
-import system.data.Category;
-import system.data.SinglePage;
-
 public class SystemSettings {
 
   public final static String configXMLFile = "config/config.xml";
   public final static String ftpXMLFile = "config/ftp_config.xml";
   
-  /* Default name of directory */
+  /* Default name of directories */
   public final static String D_config = "config";
+  public final static String D_category = "category";
   public final static String D_draft = "draft";
   public final static String D_edit = "edit";
   public final static String D_css = "css";
@@ -21,55 +15,19 @@ public class SystemSettings {
   public final static String D_web = "web";
   public final static String D_template = "template";
   public final static String D_sub_page = "page";
-  public final static String D_root = "/Documents/CMS/"; /* for mac */
+  public final static String D_root = "/Documents/CMS/"; /* for macOS */
   public final static String D_layout = "layout";
   public final static String D_layout_template = "CssTemplate";
   public final static String D_layout_xml = "CssXML";
   public final static String D_layout_preview = "preview";
   public final static String D_ftp = "public_html";
-  private Map<String, String[]> defaultLayout;
   
-  public SystemSettings(){
-    defaultLayout = new HashMap<String, String[]>();
-  }
-
-  public CSSXMLsettings getDefaultLayout(String layoutName){
-    CSSXMLsettings newCSS = new CSSXMLsettings();
-    if(defaultLayout.containsKey(layoutName)){
-    //color order: [0]header, [1]title, [2]subtitle, [3]main, [4]content, [5]frame
-      String[] defaultColors = defaultLayout.get(layoutName);
-      newCSS.setName(layoutName);
-      newCSS.setHeaderColor(defaultColors[0]);
-      newCSS.setTitleColor(defaultColors[1]);
-      newCSS.setSubTitleColor(defaultColors[2]);
-      newCSS.setMainColor(defaultColors[3]);
-      newCSS.setContentColor(defaultColors[4]);
-      newCSS.setFrameColor(defaultColors[5]);
-    }
-    return newCSS;
-  }
-  
-  public void initDefaultLayout(){
-    //color order: [0]header, [1]title, [2]subtitle, [3]main, [4]content, [5]frame
-    String[] blueLayout = {"#1d5468", "#FFFFFF", "#FFFFFF", "#fdf7e9", "#4f4f4f", "#0f2c35"};
-    defaultLayout.put("blue", blueLayout);
-    String[] roseLayout = {"#F2385A", "#FFFFFF", "#FFFFFF", "#F2F2F2", "#4f4f4f", "#333333"};
-    defaultLayout.put("rose", roseLayout);
-  }
-  
-  public static Map<String, Category> getDefaultCategory() {
-    Map<String, Category> categories = new HashMap<String, Category>();
-    Category defaultCategory = new Category("Uncategorized");
-    Category defaultHiddenCategory = new Category("Hidden(Draft Model)");
-    SinglePage singlepage = new SinglePage("index.html");
-    singlepage.setDirectory("default");
-    singlepage.setTitle("Welcome!");
-    defaultCategory.addPageToList(singlepage);
-    categories.put(defaultCategory.getName(), defaultCategory);
-    categories.put(defaultHiddenCategory.getName(), defaultHiddenCategory);
-   
-    return categories;
-  }
-  
+  public final static String CSSxmlPath = D_layout + "/" + D_layout_xml + "/";
+  public final static String CSSpreviewPath = D_layout + "/" + D_layout_preview + "/";
+  public final static String CSStemplatePath = D_layout + "/" + D_layout_template + "/";
+  public final static String cssPath = D_css + "/";
+  public final static String templatePath = D_template + "/";
+  public final static String pagePath = D_edit + "/";
+  public final static String categoryPath = D_category + "/";
   
 }
