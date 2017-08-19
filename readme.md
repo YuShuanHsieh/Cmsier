@@ -16,12 +16,11 @@
 
 ### Description
 The purpose of this project is to provide a safe and convenient tool that helps Non-CS users build a web site.
-There are numerous excellent content management systems, however, most of them are Web applications including database support.
-Therefore, it would be difficult to prevent some hacking due to the bugs of web applications.
-The system is inspired by static site generators, which is a text engine that produces static HTML web pages. Without the server-side programming and database, the web sites could be much safer and faster.
+There are numerous excellent content management systems, however, most of them are Web applications which are at risks of hacking attacks.
+Therefore, the system inspired by static site generators, which is a text engine that produces static HTML web pages, combines with the advantages of existing content management systems and static site generators to help non-CS users to create a static Web site without attacking threats.
 
 # Design pattern and structure
-![System structure](http://cherrieblog.tw/project/UML_small.png)
+![System structure](http://cherrieblog.tw/project/Cmsier_UML_1.png)
 
 ### Description
 This project uses MVC pattern to build the whole structure.
