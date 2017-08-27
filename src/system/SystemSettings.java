@@ -22,12 +22,13 @@ public class SystemSettings {
   public final static String D_layout_preview = "preview";
   public final static String D_ftp = "public_html";
   
-  public final static String CSSxmlPath = D_layout + "/" + D_layout_xml + "/";
+  public final static String CSSxmlPath = D_layout + "/";
   public final static String CSSpreviewPath = D_layout + "/" + D_layout_preview + "/";
   public final static String CSStemplatePath = D_layout + "/" + D_layout_template + "/";
   public final static String cssPath = D_css + "/";
   public final static String templatePath = D_template + "/";
   public final static String pagePath = D_edit + "/";
   public final static String categoryPath = D_category + "/";
-  
+  public final static String uploadPath = D_upload + "/";
+  public final static String configurePath = D_config + "/";
 }

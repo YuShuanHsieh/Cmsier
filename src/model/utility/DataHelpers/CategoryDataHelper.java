@@ -12,7 +12,7 @@ import system.data.Category;
 import system.data.CategoryCollection;
 import system.data.SinglePage;
 
-public class CategoryDataHelper implements DataHelperBase<CategoryCollection> {
+public class CategoryDataHelper implements DataHelper<CategoryCollection> {
   
   public String localCategoryPath;
   

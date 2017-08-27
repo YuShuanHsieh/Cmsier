@@ -15,7 +15,7 @@ import system.data.Settings;
  * @see Settings
  *  */
 
-public class SettingDataHelper implements DataHelperBase<Settings> {
+public class SettingDataHelper implements DataHelper<Settings> {
   
   @Override
   public Settings read(String name) {

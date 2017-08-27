@@ -1,5 +1,6 @@
 package controller;
 
+import view.EditView;
 import view.UploadView;
 import view.View;
 import javafx.scene.input.MouseEvent;
@@ -8,6 +9,7 @@ import model.GenerateModel;
 import model.Model;
 import model.UploadModel;
 import system.DataCenter;
+import system.Statement;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
@@ -24,6 +26,7 @@ public class UploadController implements Controller {
   private UploadModel uploadModel;
   private GenerateModel generateModel;
   private DataCenter dataCenter;
+  private EditController parent;
   
   private TextField host;
   private TextField account;
@@ -56,6 +59,7 @@ public class UploadController implements Controller {
   
   @Override
   public void setParent(Controller parent) {
+    this.parent = (EditController) parent;
   }
   
   @Override
@@ -77,9 +81,9 @@ public class UploadController implements Controller {
   
   @Override
   public void setEvent(){
-    UploadView castView = (UploadView)view;
-    castView.setResultConverter(button -> {
+    view.setResultConverter(button -> {
       uploadModel.saveFtpSettings(host.getText(), account.getText(), password.getText()); 
+      parent.updateTreeView();
       return null;
     });
     uploadButton.setOnMousePressed(this::upload);
@@ -151,5 +155,6 @@ public class UploadController implements Controller {
     uploadButton.setDisable(isDisable);
     downloadButton.setDisable(isDisable);
   }
+  
 
 }

@@ -161,9 +161,8 @@ public class DataCenter {
   }
   
   public void addItem(String itemName, SinglePage page) {
-    if(settings.addItemToMenu(itemName, page)) {
-      settingHelper.write(settings);
-    }
+    settings.addItemToMenu(itemName, page);
+    settingHelper.write(settings);
   }
   
   public void removeItem(SinglePage page) {

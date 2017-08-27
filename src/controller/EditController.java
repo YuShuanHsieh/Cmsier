@@ -266,7 +266,7 @@ public class EditController implements Controller{
   }
   
   private void uploadfile(MouseEvent event) {
-    ControllerFactory.create(Id.UPLOAD, dataCenter);
+    ControllerFactory.create(Id.UPLOAD, dataCenter, this);
   }
   
   /** Should be modified later. */
@@ -279,6 +279,11 @@ public class EditController implements Controller{
       SinglePage targetPage = (SinglePage)selectedPage.getValue();
       selectCategory.setValue(targetPage.getCategory());
     }
+  }
+  
+  public void updateTreeView() {
+    selectCategoryList = FXCollections.observableList(dataCenter.getCategory().values().stream().collect(Collectors.toList()));
+    view.updateStatement(EditView.SETUP_TREEVIEW, Statement.success(dataCenter.getPageCollection()));
   }
 
 }

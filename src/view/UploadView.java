@@ -14,7 +14,7 @@ import javafx.scene.control.TextArea;
 import system.DataCenter;
 import system.Statement;
 import system.data.FtpSettings;
-/*
+/**
  * @Author: Yu-Shuan
  *  */
 public class UploadView extends Dialog<Void> implements View {

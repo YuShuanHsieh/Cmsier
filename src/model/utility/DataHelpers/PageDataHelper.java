@@ -13,7 +13,7 @@ import system.data.SinglePage;
  * Should notice the usage of write methods. 
  *  */
 
-public class PageDataHelper implements DataHelperBase<PageCollection> {
+public class PageDataHelper implements DataHelper<PageCollection> {
 
   private String localPagePath;
   

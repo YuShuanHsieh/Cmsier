@@ -1,18 +1,17 @@
 package model;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.Optional;
+
+import model.utility.ImageUploader;
 import system.DataCenter;
 import system.Statement;
-import system.SystemSettings;
 import system.data.SinglePage;
 import view.EditView;
 import view.View;
 import system.data.Category;
 
 /**
- * Edit module: enable user to edit page's content.
+ * Edit module: enable user to edit page's contents.
  * It contains functions of page selection, text editor, and save content.
  *  */
 
@@ -106,42 +105,8 @@ public class EditModel implements Model {
   }
   
   public String imageStore(String content) {
-    
-    String clip = "<img src=\"file://";
-    StringBuilder stringBuilder = new StringBuilder(content);
-    int startIndex = 0;
-    
-    while(startIndex != -1){
-      
-      startIndex = stringBuilder.indexOf("<img", startIndex);
-      if(startIndex != -1){
-        int lastIndex = stringBuilder.indexOf("\" style=\"max-width: 100%;\">", startIndex + 1);
-        stringBuilder.substring(startIndex, lastIndex);
-        String filePah = stringBuilder.substring(startIndex + clip.length(), lastIndex).toString();
-      
-        String[] splitFile = filePah.split("/");
-        String fileName = splitFile[splitFile.length -1];
-        
-        File originalFile = new File(filePah);
-        String imgUploadPath = dataCenter.getSettings().getLocalPath() + SystemSettings.D_upload + "/";
-        File newFile = new File(imgUploadPath + fileName);
-        
-        try{
-          if(!newFile.exists()){
-            Files.copy(originalFile.toPath(), newFile.toPath());
-          }
-        } catch(Exception e) {
-          e.printStackTrace();
-          return null;
-        }
-        stringBuilder = stringBuilder.replace(startIndex + clip.length(), lastIndex, newFile.getAbsolutePath());
-        /** find the last index again because of inserting string. */
-        lastIndex = stringBuilder.indexOf("\">", startIndex + 1);
-        startIndex = lastIndex;
-      }
-    }
-    
-    return stringBuilder.toString();
+    ImageUploader uploader = new ImageUploader(content, dataCenter.getSettings());
+    return uploader.run();
   }
   
 }

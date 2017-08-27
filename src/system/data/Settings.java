@@ -89,10 +89,11 @@ public class Settings {
     return true;
   }
   
-  public Boolean addItemToMenu(String customizedName, SinglePage page) {
+  public void addItemToMenu(String customizedName, SinglePage page) {
     for(SettingItem menuItem :menu) {
       if(menuItem.getFileName().equals(page.getName())) {
-        return false;
+        menuItem.name = customizedName;
+        return;
       }
     }
     
@@ -102,7 +103,6 @@ public class Settings {
     newMenuItem.setTargetURL("./" + page.getDirectory() + "/" + page.getName());
     
     menu.add(newMenuItem);
-    return true;
   }
   
   public Boolean removeItemFromMenu(SinglePage targetPage) {

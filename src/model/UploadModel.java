@@ -21,6 +21,7 @@ import view.View;
 public class UploadModel implements Model {
 
   private View view;
+  private DataCenter dataCenter;
   
   private FTPClient ftpClient;
   private FtpSettings ftpSetting;
@@ -28,9 +29,10 @@ public class UploadModel implements Model {
   private FTPDataHelper helper;
    
   public UploadModel(DataCenter dataCenter) {
-    localRootPath = dataCenter.getSettings().getLocalPath();
-    ftpClient = new FTPClient();
-    helper = new FTPDataHelper();
+    this.dataCenter = dataCenter;
+    this.localRootPath = dataCenter.getSettings().getLocalPath();
+    this.ftpClient = new FTPClient();
+    this.helper = new FTPDataHelper();
   }
   
   @Override
@@ -91,6 +93,8 @@ public class UploadModel implements Model {
     uploadSingleDirectory("/public_html/upload/",localRootPath + "upload/","");
     uploadSingleDirectory("/public_html/edit/",localRootPath + "edit/","");
     uploadSingleDirectory("/public_html/config/",localRootPath + "config/","");
+    uploadSingleDirectory("/public_html/category/",localRootPath + "category/","");
+    uploadSingleDirectory("/public_html/layout/",localRootPath + "layout/","");
 
     view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Upload Web pages to server successfully."));
     return true;
@@ -147,17 +151,16 @@ public class UploadModel implements Model {
   
   public Boolean uploadSingleFile(String targetPath, File uploadFile){
     try {
-      System.out.println("target path : " + targetPath);
-      System.out.println("local path : " + uploadFile);
       FileInputStream upload = new FileInputStream(uploadFile);
       if(!ftpClient.storeFile(targetPath, upload)) {
+        System.out.println("targetPath" + targetPath);
+        System.out.println("uploadPath" + uploadFile.getAbsolutePath());
         System.out.println(ftpClient.getReplyString());
       }
       upload.close();
       return true;
     }
     catch(Exception exception) {
-      System.out.println("Error ");
       exception.printStackTrace();
       return false;
     }
@@ -171,9 +174,8 @@ public class UploadModel implements Model {
   }
   
   public boolean downloadFileFromServer(){
-    
-    String[] downloadDirectories = {SystemSettings.D_config + "/",SystemSettings.D_edit + "/",
-        SystemSettings.D_upload + "/",SystemSettings.D_layout + "/" + SystemSettings.D_layout_xml + "/"};
+    String[] downloadDirectories = {SystemSettings.configurePath,SystemSettings.pagePath,
+        SystemSettings.uploadPath,SystemSettings.CSSxmlPath, SystemSettings.categoryPath};
     
     for(String downloadDirectory : downloadDirectories){
       view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Download files from " + downloadDirectory + "."));
@@ -182,6 +184,7 @@ public class UploadModel implements Model {
       }
     }
     
+    dataCenter.init();
     view.updateStatement(UploadView.UPLOAD_PROCESS, Statement.success("- Download files successfully."));
     return true;
   }
@@ -190,7 +193,7 @@ public class UploadModel implements Model {
     List<String> currentList= new ArrayList<String>();
     List<String> tempList = new ArrayList<String>();
     try{
-      /* Initialize */
+      /** Initialize */
       currentList.add(directoryPath);
       
       while(true){

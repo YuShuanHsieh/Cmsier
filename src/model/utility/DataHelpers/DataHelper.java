@@ -1,6 +1,6 @@
 package model.utility.DataHelpers;
 
-public interface DataHelperBase<T> {
+public interface DataHelper<T> {
   
   public T read(String name);
   

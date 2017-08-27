@@ -9,7 +9,7 @@ import javax.xml.bind.Unmarshaller;
 import system.SystemSettings;
 import system.data.FtpSettings;
 
-public class FTPDataHelper implements DataHelperBase<FtpSettings> {
+public class FTPDataHelper implements DataHelper<FtpSettings> {
   
   @Override
   public FtpSettings read(String name) {

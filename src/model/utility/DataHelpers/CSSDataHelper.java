@@ -13,7 +13,7 @@ import system.data.CSSXMLsettings;
  * @see CSSXMLsettings
  *  */
 
-public class CSSDataHelper implements DataHelperBase<CSSXMLsettings> {
+public class CSSDataHelper implements DataHelper<CSSXMLsettings> {
 
   private String localCSSPath;
   private Map<String, String[]> defaultLayout;

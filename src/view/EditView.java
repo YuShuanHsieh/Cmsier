@@ -270,7 +270,7 @@ public class EditView implements View{
   }
 	
 	private void setUpTreeView(final PageCollection pageCollection) {
-	  
+	  root.getChildren().clear();
 	  TreeItem<SinglePage> defaultRoot = new TreeItem<SinglePage>(new SinglePage("Default Page"));
 	  pagesRoot = new TreeItem<SinglePage>(new SinglePage("Your Page"));
 	  defaultRoot.setExpanded(true);

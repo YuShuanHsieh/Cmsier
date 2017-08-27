@@ -7,20 +7,20 @@
             <targetURL>./index.html</targetURL>
         </MenuItem>
         <MenuItem>
-            <fileName>test2.html</fileName>
-            <name>Test</name>
-            <targetURL>./page/test2.html</targetURL>
-        </MenuItem>
-        <MenuItem>
             <fileName>test.html</fileName>
             <name>Description</name>
             <targetURL>./page/test.html</targetURL>
+        </MenuItem>
+        <MenuItem>
+            <fileName>test2.html</fileName>
+            <name>Project</name>
+            <targetURL>./page/test2.html</targetURL>
         </MenuItem>
     </Menu>
     <footer>Yu-Shuan @ copy right.</footer>
     <layout>blue</layout>
     <localPath>/Users/yu-shuan/Documents/CMS/</localPath>
     <publish>https://cherriesweb.000webhostapp.com/</publish>
-    <subTitle>Test Web site.</subTitle>
-    <title>This is a test page</title>
+    <subTitle>programming.</subTitle>
+    <title>Programmer</title>
 </Settings>
